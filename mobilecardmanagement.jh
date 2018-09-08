@@ -1,0 +1,28 @@
+entity Card {
+	mobileService String,
+    price Integer,
+    serialNumber String,
+    code String,
+	createdDate Instant,
+    exportedDate Instant,
+    updatedDate Instant,
+    userId String,
+    status String,
+    realPrice Integer,
+    deleted Boolean,
+}
+
+enum SERVICE {
+    VIETTEL, MOBI, VINA, VNMOBILE
+}
+
+// Set pagination options
+// paginate Card with infinite-scroll
+paginate Card with pagination
+
+dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+// Set an angular suffix
+angularSuffix * with mySuffix
