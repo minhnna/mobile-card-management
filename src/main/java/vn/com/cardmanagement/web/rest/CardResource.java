@@ -1,8 +1,12 @@
 package vn.com.cardmanagement.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import vn.com.cardmanagement.config.Constants;
 import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.web.rest.errors.BadRequestAlertException;
+import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 import vn.com.cardmanagement.web.rest.util.HeaderUtil;
 import vn.com.cardmanagement.web.rest.util.PaginationUtil;
 import vn.com.cardmanagement.service.dto.CardDTO;
@@ -19,6 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +60,8 @@ public class CardResource {
         if (cardDTO.getId() != null) {
             throw new BadRequestAlertException("A new card cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        cardDTO.setCreatedDate(Instant.now());
+        cardDTO.setStatus(String.valueOf(Constants.Status.NEW));
         CardDTO result = cardService.save(cardDTO);
         return ResponseEntity.created(new URI("/api/cards/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
@@ -96,6 +105,25 @@ public class CardResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/get-card-by-user")
+    @Timed
+    public ResponseEntity<List<CardDTO>> getCardsByUser(CardQueryCondition cardQueryCondition) {
+        log.debug("REST request to get quantity of Cards");
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        cardQueryCondition.setUserId(userDetails.getUsername());
+        List<CardDTO> cards = new ArrayList<>();
+        List<CardDTO> result = cardService.findNewCards(cardQueryCondition);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/view-card-by-user")
+    @Timed
+    public ResponseEntity<List<CardDTO>> viewCardsByUser(Pageable pageable, CardQueryCondition cardQueryCondition) {
+        log.debug("REST request to view old Cards");
+        Page<CardDTO> page = cardService.findOldCards(pageable, cardQueryCondition);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/cards");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
     /**
      * GET  /cards/:id : get the "id" card.
      *

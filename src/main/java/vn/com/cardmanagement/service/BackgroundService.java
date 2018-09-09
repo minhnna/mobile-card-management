@@ -1,18 +1,15 @@
 package vn.com.cardmanagement.service;
 
-import vn.com.cardmanagement.service.dto.CardDTO;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
+import vn.com.cardmanagement.service.dto.CardDTO;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
  * Service Interface for managing Card.
  */
-public interface CardService {
+public interface BackgroundService {
 
     /**
      * Save a card.
@@ -45,8 +42,4 @@ public interface CardService {
      * @param id the id of the entity
      */
     void delete(String id);
-
-    List<CardDTO> findNewCards(CardQueryCondition cardQueryCondition);
-
-    Page<CardDTO> findOldCards(Pageable pageable, CardQueryCondition cardQueryCondition);
 }

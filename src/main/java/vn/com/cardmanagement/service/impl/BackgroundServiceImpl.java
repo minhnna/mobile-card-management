@@ -1,35 +1,32 @@
 package vn.com.cardmanagement.service.impl;
 
-import org.springframework.data.domain.PageImpl;
-import vn.com.cardmanagement.service.CardService;
-import vn.com.cardmanagement.domain.Card;
-import vn.com.cardmanagement.repository.CardRepository;
-import vn.com.cardmanagement.service.dto.CardDTO;
-import vn.com.cardmanagement.service.mapper.CardMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
+import vn.com.cardmanagement.domain.Card;
+import vn.com.cardmanagement.repository.CardRepository;
+import vn.com.cardmanagement.service.BackgroundService;
+import vn.com.cardmanagement.service.CardService;
+import vn.com.cardmanagement.service.dto.CardDTO;
+import vn.com.cardmanagement.service.mapper.CardMapper;
 
-
-import java.util.List;
 import java.util.Optional;
+
 /**
  * Service Implementation for managing Card.
  */
 @Service
-public class CardServiceImpl implements CardService {
+public class BackgroundServiceImpl implements BackgroundService {
 
-    private final Logger log = LoggerFactory.getLogger(CardServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(BackgroundServiceImpl.class);
 
     private final CardRepository cardRepository;
 
     private final CardMapper cardMapper;
 
-    public CardServiceImpl(CardRepository cardRepository, CardMapper cardMapper) {
+    public BackgroundServiceImpl(CardRepository cardRepository, CardMapper cardMapper) {
         this.cardRepository = cardRepository;
         this.cardMapper = cardMapper;
     }
@@ -84,16 +81,5 @@ public class CardServiceImpl implements CardService {
     public void delete(String id) {
         log.debug("Request to delete Card : {}", id);
         cardRepository.deleteById(id);
-    }
-
-    @Override
-    public List<CardDTO> findNewCards(CardQueryCondition cardQueryCondition) {
-
-        return cardMapper.toDto(cardRepository.findNewCard(cardQueryCondition));
-    }
-
-    @Override
-    public Page<CardDTO> findOldCards(Pageable pageable, CardQueryCondition cardQueryCondition) {
-        return cardRepository.findOldCard(pageable, cardQueryCondition).map(cardMapper::toDto);
     }
 }
