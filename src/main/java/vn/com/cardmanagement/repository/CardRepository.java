@@ -12,5 +12,4 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @Repository
 public interface CardRepository extends MongoRepository<Card, String>, CardRepositoryCustom {
-
 }

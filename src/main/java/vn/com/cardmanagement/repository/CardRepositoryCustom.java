@@ -7,7 +7,6 @@ import vn.com.cardmanagement.domain.Card;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Spring Data MongoDB repository for the Card entity.
@@ -18,4 +17,8 @@ public interface CardRepositoryCustom {
     List<Card> findNewCard(CardQueryCondition cardQueryCondition);
 
     Page<Card> findOldCard(Pageable pageable, CardQueryCondition cardQueryCondition);
+
+    Page<Card> findExpiredCard(Pageable pageable);
+
+    Card findOne(String id);
 }

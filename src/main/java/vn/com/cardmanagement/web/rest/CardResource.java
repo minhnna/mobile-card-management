@@ -1,6 +1,7 @@
 package vn.com.cardmanagement.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.google.common.base.Strings;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import vn.com.cardmanagement.config.Constants;
@@ -84,7 +85,10 @@ public class CardResource {
         if (cardDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        CardDTO result = cardService.save(cardDTO);
+        if (Strings.isNullOrEmpty(cardDTO.getStatus())) {
+            return ResponseEntity.badRequest().build();
+        }
+        CardDTO result = cardService.updateStatus(cardDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, cardDTO.getId().toString()))
             .body(result);
@@ -116,14 +120,36 @@ public class CardResource {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @GetMapping("/get-expired-card")
+    @Timed
+    public ResponseEntity<List<CardDTO>> getExpiredCard(Pageable pageable) {
+        log.debug("REST request to get quantity of Cards");
+        Page<CardDTO> page = cardService.findExpiredCards(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/get-expired-card");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
     @GetMapping("/view-card-by-user")
     @Timed
     public ResponseEntity<List<CardDTO>> viewCardsByUser(Pageable pageable, CardQueryCondition cardQueryCondition) {
+        log.debug("REST request to view old Cards");
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        cardQueryCondition.setUserId(userDetails.getUsername());
+        Page<CardDTO> page = cardService.findOldCards(pageable, cardQueryCondition);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/view-card-by-user");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/view-card-by-admin")
+    @Timed
+    public ResponseEntity<List<CardDTO>> viewCardsByAdmin(Pageable pageable, CardQueryCondition cardQueryCondition) {
         log.debug("REST request to view old Cards");
         Page<CardDTO> page = cardService.findOldCards(pageable, cardQueryCondition);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/cards");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+
+
     /**
      * GET  /cards/:id : get the "id" card.
      *

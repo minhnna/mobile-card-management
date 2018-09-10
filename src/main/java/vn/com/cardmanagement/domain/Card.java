@@ -15,6 +15,8 @@ import java.util.Objects;
 public class Card implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final long TIMEOUT = 15 * 60 * 1000;// image link timeout is one hour
+    private static final long CHANGE_LINK_TIME = 15 * 60 * 1000;// image link changed after 5 minutes
 
     @Id
     private String id;
@@ -223,6 +225,30 @@ public class Card implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(getId());
+    }
+
+    public void encodeId() {
+        this.id = encodeId(this.id);
+    }
+
+    public static String encodeId(String id) {
+        return id + "-" + Long.toHexString(System.currentTimeMillis() / CHANGE_LINK_TIME);
+    }
+
+    public static String decodeId(String id) {
+        return decodeId(id, TIMEOUT);
+    }
+
+    public static String decodeId(String id, long timeout) {
+
+        String[] parts = id.split("-");
+        if (parts.length == 2) {
+            long milli = Long.parseLong(parts[1], 16) * CHANGE_LINK_TIME;
+            if (timeout == 0 || milli <= System.currentTimeMillis() && milli > System.currentTimeMillis() - timeout) {
+                return parts[0];
+            }
+        }
+        return null;
     }
 
     @Override

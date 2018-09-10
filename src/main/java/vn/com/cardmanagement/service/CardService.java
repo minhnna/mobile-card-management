@@ -49,4 +49,8 @@ public interface CardService {
     List<CardDTO> findNewCards(CardQueryCondition cardQueryCondition);
 
     Page<CardDTO> findOldCards(Pageable pageable, CardQueryCondition cardQueryCondition);
+
+    Page<CardDTO> findExpiredCards(Pageable pageable);
+
+    CardDTO updateStatus(CardDTO cardDTO);
 }

@@ -1,6 +1,7 @@
 package vn.com.cardmanagement.service.impl;
 
-import org.springframework.data.domain.PageImpl;
+import org.springframework.beans.BeanUtils;
+import springfox.documentation.swagger2.mappers.ModelMapper;
 import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.domain.Card;
 import vn.com.cardmanagement.repository.CardRepository;
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Service;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
 /**
  * Service Implementation for managing Card.
  */
@@ -95,5 +98,24 @@ public class CardServiceImpl implements CardService {
     @Override
     public Page<CardDTO> findOldCards(Pageable pageable, CardQueryCondition cardQueryCondition) {
         return cardRepository.findOldCard(pageable, cardQueryCondition).map(cardMapper::toDto);
+    }
+
+    @Override
+    public Page<CardDTO> findExpiredCards(Pageable pageable) {
+        return cardRepository.findExpiredCard(pageable).map(cardMapper::toDto);
+    }
+
+    @Override
+    public CardDTO updateStatus(CardDTO cardDTO) {
+        log.debug("Request to update Card : {}", cardDTO.getId());
+        Card orgCard = cardRepository.findOne(cardDTO.getId());
+        if (cardDTO.getRealPrice() != 0) {
+            orgCard.setRealPrice(cardDTO.getRealPrice());
+        }
+        orgCard.setStatus(cardDTO.getStatus());
+        orgCard.setUpdatedDate(Instant.now());
+        Card result = cardRepository.save(orgCard);
+        BeanUtils.copyProperties(result, cardDTO);
+        return cardDTO;
     }
 }
