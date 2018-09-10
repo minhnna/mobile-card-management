@@ -11,6 +11,7 @@ import { CardMySuffixComponent } from './card-my-suffix.component';
 import { CardMySuffixDetailComponent } from './card-my-suffix-detail.component';
 import { CardMySuffixUpdateComponent } from './card-my-suffix-update.component';
 import { CardMySuffixDeletePopupComponent } from './card-my-suffix-delete-dialog.component';
+import { CardMySuffixChangePopupComponent } from './card-my-suffix-change-dialog.component';
 import { ICardMySuffix } from 'app/shared/model/card-my-suffix.model';
 
 @Injectable({ providedIn: 'root' })
@@ -82,6 +83,19 @@ export const cardPopupRoute: Routes = [
     {
         path: 'card-my-suffix/:id/delete',
         component: CardMySuffixDeletePopupComponent,
+        resolve: {
+            card: CardMySuffixResolve
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Cards'
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup'
+    },
+    {
+        path: 'card-my-suffix/:id/change',
+        component: CardMySuffixChangePopupComponent,
         resolve: {
             card: CardMySuffixResolve
         },

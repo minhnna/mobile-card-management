@@ -8,6 +8,8 @@ import {
     CardMySuffixUpdateComponent,
     CardMySuffixDeletePopupComponent,
     CardMySuffixDeleteDialogComponent,
+    CardMySuffixChangePopupComponent,
+    CardMySuffixChangeDialogComponent,
     cardRoute,
     cardPopupRoute
 } from './';
@@ -21,13 +23,17 @@ const ENTITY_STATES = [...cardRoute, ...cardPopupRoute];
         CardMySuffixDetailComponent,
         CardMySuffixUpdateComponent,
         CardMySuffixDeleteDialogComponent,
-        CardMySuffixDeletePopupComponent
+        CardMySuffixDeletePopupComponent,
+        CardMySuffixChangePopupComponent,
+        CardMySuffixChangeDialogComponent
     ],
     entryComponents: [
         CardMySuffixComponent,
         CardMySuffixUpdateComponent,
         CardMySuffixDeleteDialogComponent,
-        CardMySuffixDeletePopupComponent
+        CardMySuffixDeletePopupComponent,
+        CardMySuffixChangePopupComponent,
+        CardMySuffixChangeDialogComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

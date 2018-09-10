@@ -1,0 +1,19 @@
+<form name="changeForm" (ngSubmit)="confirmChange(card.id)">
+    <div class="modal-header">
+        <h4 class="modal-title">Confirm change operation</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <p id="jhi-change-card-heading">Are you sure you want to change this Card?</p>
+    </div>
+    <div class="modal-footer">
+        <button id="jhi-confirm-change-card" type="submit" class="btn btn-success">
+            <span>Thành công</span>
+        </button>
+        <button type="button" data-dismiss="modal" class="btn btn-danger" (click)="clear()">
+            <span>Thất bại</span>
+        </button>
+    </div>
+</form>

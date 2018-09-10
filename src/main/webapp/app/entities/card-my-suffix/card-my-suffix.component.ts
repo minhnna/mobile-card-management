@@ -9,6 +9,7 @@ import { Principal } from 'app/core';
 
 import { ITEMS_PER_PAGE } from 'app/shared';
 import { CardMySuffixService } from './card-my-suffix.service';
+import { DATA } from 'app/shared/constants/data.constants';
 
 @Component({
     selector: 'jhi-card-my-suffix',
@@ -29,6 +30,14 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     predicate: any;
     previousPage: any;
     reverse: any;
+
+    selectionMobileService = '';
+    selectionAmountOf = '';
+    selectionValue = '';
+
+    mobileServices = DATA.mobileServices;
+    amountOf = DATA.amountOf;
+    values = DATA.values;
 
     constructor(
         private cardService: CardMySuffixService,
@@ -117,6 +126,10 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
             result.push('id');
         }
         return result;
+    }
+
+    receiveCard() {
+        console.log(this.selectionMobileService, this.selectionAmountOf, this.selectionValue);
     }
 
     private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {
