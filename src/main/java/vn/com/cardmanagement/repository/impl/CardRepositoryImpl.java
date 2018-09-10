@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import vn.com.cardmanagement.config.Constants;
 import vn.com.cardmanagement.domain.Card;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Repository
 public class CardRepositoryImpl implements CardRepositoryCustom {
+    private static final long EXPIRED_TIME = 240000;
     MongoTemplate mongoTemplate;
     private final Logger log = LoggerFactory.getLogger(CardRepositoryImpl.class);
 
@@ -46,27 +48,34 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
 
     @Override
     public List<Card> findNewCard(CardQueryCondition cardQueryCondition) {
-        CustomFieldQuery query = new CustomFieldQuery();
-        query.with(new Sort(Sort.Direction.ASC, "created_date"));
-        query.excludeKeys("created_date", "tenantId", "serviceId", "video_split_frame", "createdDate", "updatedDate");
-        log.info("Find new card:" + cardQueryCondition.toString());
-        if (cardQueryCondition.getMobileService()!=null) {
-            query.addCriteria(Criteria.where("mobile_service").is(cardQueryCondition.getMobileService().toString()));
+        CustomFieldQuery checkQuery = new CustomFieldQuery();
+        checkQuery.addCriteria(Criteria.where("user_id").is(cardQueryCondition.getUserId()));
+        checkQuery.addCriteria(Criteria.where("status").is("PENDING"));
+        List<Card> pendingCards = mongoTemplate.find(checkQuery, Card.class);
+        if (pendingCards != null && pendingCards.size() > 0) {
+            return pendingCards;
+        } else {
+            CustomFieldQuery query = new CustomFieldQuery();
+            query.with(new Sort(Sort.Direction.ASC, "created_date"));
+            query.excludeKeys("created_date", "tenantId", "serviceId", "video_split_frame", "createdDate", "updatedDate");
+            log.info("Find new card:" + cardQueryCondition.toString());
+            if (cardQueryCondition.getMobileService() != null) {
+                query.addCriteria(Criteria.where("mobile_service").is(cardQueryCondition.getMobileService().toString()));
+            }
+            if (cardQueryCondition.getPrice() != 0) {
+                query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
+            }
+            query.addCriteria(Criteria.where("user_id").is(null));
+            query.addCriteria(Criteria.where("status").is("NEW"));
+            List<Card> cards = mongoTemplate.find(query.limit(cardQueryCondition.getQuantity()), Card.class);
+            for (Card card : cards) {
+                card.setExportedDate(Instant.now());
+                card.setUserId(cardQueryCondition.getUserId());
+                card.setStatus(Constants.Status.PENDING.toString());
+                mongoTemplate.save(card);
+            }
+            return cards;
         }
-        if (cardQueryCondition.getPrice() != 0) {
-            query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
-        }
-        query.addCriteria(Criteria.where("user_id").is(null));
-        query.addCriteria(Criteria.where("status").is("NEW"));
-        List<Card> cards = mongoTemplate.find(query.limit(cardQueryCondition.getQuantity()), Card.class);
-        for (Card card : cards) {
-            card.setExportedDate(Instant.now());
-            card.setUserId(cardQueryCondition.getUserId());
-            card.setStatus(Constants.Status.PENDING.toString());
-            mongoTemplate.save(card);
-        }
-
-        return cards;
     }
 
     @Override
@@ -74,26 +83,45 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         CustomFieldQuery query = new CustomFieldQuery();
         query.with(pageable);
         query.with(new Sort(Sort.Direction.DESC, "updated_date"));
-        query.excludeKeys("created_date", "tenantId", "serviceId", "video_split_frame", "createdDate", "updatedDate");
         log.info("Find new card:" + cardQueryCondition.toString());
-        if (cardQueryCondition.getMobileService()!=null) {
+        if (cardQueryCondition.getMobileService() != null) {
             query.addCriteria(Criteria.where("mobile_service").is(cardQueryCondition.getMobileService().toString()));
         }
         if (cardQueryCondition.getPrice() != 0) {
             query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
         }
-        if(!Strings.isNullOrEmpty(cardQueryCondition.getFromDate())){
+        if (!Strings.isNullOrEmpty(cardQueryCondition.getFromDate())) {
             Instant fromDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getFromDate()));
             query.addCriteria(Criteria.where("created_date").gte(fromDate));
         }
-        if(!Strings.isNullOrEmpty(cardQueryCondition.getToDate())){
+        if (!Strings.isNullOrEmpty(cardQueryCondition.getToDate())) {
             Instant toDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getToDate()));
             query.addCriteria(Criteria.where("created_date").lte(toDate));
         }
-        query.addCriteria(Criteria.where("user_id").is(cardQueryCondition.getUserId()));
+        if (!Strings.isNullOrEmpty(cardQueryCondition.getUserId())) {
+            query.addCriteria(Criteria.where("user_id").is(cardQueryCondition.getUserId()));
+        }
         query.addCriteria(Criteria.where("status").ne("NEW"));
         List<Card> cardList = mongoTemplate.find(query, Card.class);
         Long total = mongoTemplate.count(query, Card.class);
-        return new PageImpl<Card>(cardList, pageable, total);
+        return new PageImpl<>(cardList, pageable, total);
+    }
+
+    @Override
+    public Page<Card> findExpiredCard(Pageable pageable) {
+        CustomFieldQuery query = new CustomFieldQuery();
+        query.addCriteria(Criteria.where("status").is("NEW"));
+        query.addCriteria(Criteria.where("created_date").lte(
+            Instant.ofEpochMilli(System.currentTimeMillis()-EXPIRED_TIME)));
+        List<Card> cardList = mongoTemplate.find(query, Card.class);
+        Long total = mongoTemplate.count(query, Card.class);
+        return new PageImpl<>(cardList, pageable, total);
+    }
+
+    @Override
+    public Card findOne(String id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        return mongoTemplate.findOne(query,Card.class);
     }
 }
