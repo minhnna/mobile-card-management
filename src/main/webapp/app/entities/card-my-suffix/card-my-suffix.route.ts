@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 import { CardMySuffix } from 'app/shared/model/card-my-suffix.model';
 import { CardMySuffixService } from './card-my-suffix.service';
 import { CardMySuffixComponent } from './card-my-suffix.component';
+import { CardMySuffixViewUserComponent } from './card-my-suffix-view-user.component';
 import { CardMySuffixDetailComponent } from './card-my-suffix-detail.component';
 import { CardMySuffixUpdateComponent } from './card-my-suffix-update.component';
 import { CardMySuffixDeletePopupComponent } from './card-my-suffix-delete-dialog.component';
@@ -70,6 +71,18 @@ export const cardRoute: Routes = [
         component: CardMySuffixUpdateComponent,
         resolve: {
             card: CardMySuffixResolve
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Cards'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+    {
+        path: 'card-by-user',
+        component: CardMySuffixViewUserComponent,
+        resolve: {
+            pagingParams: JhiResolvePagingParams
         },
         data: {
             authorities: ['ROLE_USER'],

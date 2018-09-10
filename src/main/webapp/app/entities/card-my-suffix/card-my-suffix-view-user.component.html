@@ -9,8 +9,8 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select class="form-control" [(ngModel)]="selectionAmountOf">
-                <option value="">Số lượng</option>
+            <select class="form-control" [(ngModel)]="selectionStatus">
+                <option value="">Chọn trạng thái</option>
                 <option *ngFor="let amount of amountOf;" value="{{amount}}">{{amount}}</option>
             </select>
         </div>
@@ -21,7 +21,16 @@
             </select>
         </div>
         <div class="col-md-2">
-            <button type="button" class="btn btn-primary" (click)="receiveCard()">Nhận thẻ</button>
+            <input type="text" class="form-control" [(ngModel)]="from">
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" [(ngModel)]="to">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary" (click)="search()">Tìm kiếm</button>
+        </div>
+        <div class="col-md-2 float-right">
+            <button type="button" class="btn btn-primary" (click)="export()">Export</button>
         </div>
     </div><br>
     <div class="table-responsive">
@@ -32,7 +41,10 @@
                 <th jhiSortBy="price"><span>Mệnh giá</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                 <th jhiSortBy="serialNumber"><span>Serial</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                 <th jhiSortBy="code"><span>Code</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="exportedDate"><span>Thời gian xuất</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                <th jhiSortBy="exportedDate"><span>Ngày xuất</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                <th jhiSortBy="updatedDate"><span>Ngày nạp</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                <th jhiSortBy="realPrice"><span>Mệnh giá thực</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                <th jhiSortBy="status"><span>Trạng thái</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                 <th>Cập nhật</th>
             </tr>
             </thead>
@@ -44,6 +56,9 @@
                         <td>{{card.serialNumber}}</td>
                         <td>{{card.code}}</td>
                         <td>{{card.exportedDate | date:'medium'}}</td>
+                        <td>{{card.updatedDate | date:'medium'}}</td>
+                        <td>{{card.realPrice}}</td>
+                        <td>{{card.status}}</td>
                         <td class="text-left">
                             <div class="btn-group flex-btn-group-container">
                                 <button type="submit"
@@ -56,10 +71,14 @@
                             </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td colspan="6">Tổng</td>
+                        <td></td>
+                    </tr>
                 </ng-template>
                 <ng-template #noData>
                     <tr>
-                        <td colspan="6">Không có dữ liệu</td>
+                        <td colspan="9">Không có dữ liệu</td>
                     </tr>
                 </ng-template>
             </tbody>

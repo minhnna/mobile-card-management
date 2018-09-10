@@ -12,10 +12,10 @@ import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
 
 @Component({
-    selector: 'jhi-card-my-suffix',
-    templateUrl: './card-my-suffix.component.html'
+    selector: 'jhi-card-my-suffix-view-user',
+    templateUrl: './card-my-suffix-view-user.component.html'
 })
-export class CardMySuffixComponent implements OnInit, OnDestroy {
+export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     currentAccount: any;
     cards: ICardMySuffix[];
     error: any;
@@ -59,7 +59,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
 
     loadAll() {
         this.cardService
-            .query({
+            .queryByUser({
                 page: this.page - 1,
                 size: this.itemsPerPage,
                 sort: this.sort()
@@ -101,7 +101,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        // this.loadAll();
+        this.loadAll();
         this.principal.identity().then(account => {
             this.currentAccount = account;
         });
@@ -131,16 +131,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     }
 
     receiveCard() {
-        this.cardService
-            .getCardByUser({
-                mobileService: this.selectionMobileService.toUpperCase(),
-                price: this.selectionValue,
-                quantity: this.selectionAmountOf
-            })
-            .subscribe(
-                (res: HttpResponse<ICardMySuffix[]>) => console.log(res.body),
-                (res: HttpErrorResponse) => this.onError(res.message)
-            );
+        console.log(this.selectionMobileService, this.selectionAmountOf, this.selectionValue);
     }
 
     private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {
