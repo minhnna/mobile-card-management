@@ -12,10 +12,10 @@ import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
 
 @Component({
-    selector: 'jhi-card-my-suffix-view-user',
-    templateUrl: './card-my-suffix-view-user.component.html'
+    selector: 'jhi-card-my-suffix-view-admin',
+    templateUrl: './card-my-suffix-view-admin.component.html'
 })
-export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
+export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     currentAccount: any;
     cards: ICardMySuffix[];
     error: any;
@@ -59,7 +59,7 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
 
     loadAll() {
         this.cardService
-            .queryByUser({
+            .queryByAdmin({
                 page: this.page - 1,
                 size: this.itemsPerPage,
                 sort: this.sort()
@@ -78,7 +78,7 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/card-by-user'], {
+        this.router.navigate(['/card-by-admin'], {
             queryParams: {
                 page: this.page,
                 size: this.itemsPerPage,
@@ -91,7 +91,7 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     clear() {
         this.page = 0;
         this.router.navigate([
-            '/card-by-user',
+            '/card-by-admin',
             {
                 page: this.page,
                 sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
@@ -139,6 +139,7 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
         this.totalItems = parseInt(headers.get('X-Total-Count'), 10);
         this.queryCount = this.totalItems;
         this.cards = data;
+        console.log(this.cards);
     }
 
     private onError(errorMessage: string) {

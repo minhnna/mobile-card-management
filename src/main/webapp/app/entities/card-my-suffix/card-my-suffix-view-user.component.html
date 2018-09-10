@@ -35,21 +35,21 @@
     </div><br>
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
-            <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-                <th jhiSortBy="mobileService"><span>Nhà mạng</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="price"><span>Mệnh giá</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="serialNumber"><span>Serial</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="code"><span>Code</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="exportedDate"><span>Ngày xuất</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="updatedDate"><span>Ngày nạp</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="realPrice"><span>Mệnh giá thực</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th jhiSortBy="status"><span>Trạng thái</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                <th>Cập nhật</th>
-            </tr>
-            </thead>
-            <tbody>
-                <ng-template *ngIf="cards; else noData">
+            <ng-container *ngIf="cards && cards.length">
+                <thead>
+                    <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+                        <th jhiSortBy="mobileService"><span>Nhà mạng</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th jhiSortBy="price"><span>Mệnh giá</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th jhiSortBy="serialNumber"><span>Serial</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th jhiSortBy="code"><span>Code</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th jhiSortBy="exportedDate"><span>Ngày xuất</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th jhiSortBy="updatedDate"><span>Ngày nạp</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th jhiSortBy="realPrice"><span>Mệnh giá thực</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th jhiSortBy="status"><span>Trạng thái</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                        <th>Cập nhật</th>
+                    </tr>
+                </thead>
+                <tbody>
                     <tr *ngFor="let card of cards ;trackBy: trackId">
                         <td>{{card.mobileService}}</td>
                         <td>{{card.price}}</td>
@@ -75,13 +75,28 @@
                         <td colspan="6">Tổng</td>
                         <td></td>
                     </tr>
-                </ng-template>
-                <ng-template #noData>
+                </tbody>
+            </ng-container>
+            <ng-container *ngIf="!cards || !cards.length">
+                <thead>
+                    <tr>
+                        <th>Nhà mạng</th>
+                        <th>Mệnh giá</th>
+                        <th>Serial</th>
+                        <th>Code</th>
+                        <th>Ngày xuất</th>
+                        <th>Ngày nạp</th>
+                        <th>Mệnh giá thực</th>
+                        <th>Trạng thái</th>
+                        <th>Cập nhật</th>
+                    </tr>
+                </thead>
+                <tbody>
                     <tr>
                         <td colspan="9">Không có dữ liệu</td>
                     </tr>
-                </ng-template>
-            </tbody>
+                </tbody>
+            </ng-container>
         </table>
     </div>
     <div *ngIf="cards && cards.length">

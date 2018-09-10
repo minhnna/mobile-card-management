@@ -9,8 +9,8 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select class="form-control" [(ngModel)]="selectionAmountOf">
-                <option value="">Số lượng</option>
+            <select class="form-control" [(ngModel)]="selectionStatus">
+                <option value="">Chọn trạng thái</option>
                 <option *ngFor="let amount of amountOf;" value="{{amount}}">{{amount}}</option>
             </select>
         </div>
@@ -21,8 +21,16 @@
             </select>
         </div>
         <div class="col-md-2">
-            <button type="button" class="btn btn-primary" (click)="receiveCard()"
-                [disabled]="!selectionMobileService || !selectionAmountOf || !selectionValue">Nhận thẻ</button>
+            <input type="text" class="form-control" [(ngModel)]="from">
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" [(ngModel)]="to">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary" (click)="search()">Tìm kiếm</button>
+        </div>
+        <div class="col-md-2 float-right">
+            <button type="button" class="btn btn-primary" (click)="export()">Export</button>
         </div>
     </div><br>
     <div class="table-responsive">
@@ -30,21 +38,29 @@
             <ng-container *ngIf="cards && cards.length">
                 <thead>
                 <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+                    <th jhiSortBy="userId"><span>Người dùng</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                     <th jhiSortBy="mobileService"><span>Nhà mạng</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                     <th jhiSortBy="price"><span>Mệnh giá</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                     <th jhiSortBy="serialNumber"><span>Serial</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                     <th jhiSortBy="code"><span>Code</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                    <th jhiSortBy="exportedDate"><span>Thời gian xuất</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                    <th jhiSortBy="exportedDate"><span>Ngày xuất</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                    <th jhiSortBy="updatedDate"><span>Ngày nạp</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                    <th jhiSortBy="realPrice"><span>Mệnh giá thực</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+                    <th jhiSortBy="status"><span>Trạng thái</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                     <th>Cập nhật</th>
                 </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let card of cards ;trackBy: trackId">
+                        <td>{{card.userId}}</td>
                         <td>{{card.mobileService}}</td>
                         <td>{{card.price}}</td>
                         <td>{{card.serialNumber}}</td>
                         <td>{{card.code}}</td>
                         <td>{{card.exportedDate | date:'medium'}}</td>
+                        <td>{{card.updatedDate | date:'medium'}}</td>
+                        <td>{{card.realPrice}}</td>
+                        <td>{{card.status}}</td>
                         <td class="text-left">
                             <div class="btn-group flex-btn-group-container">
                                 <button type="submit"
@@ -62,17 +78,21 @@
             <ng-container *ngIf="!cards || !cards.length">
                 <thead>
                 <tr>
-                    <th><span>Nhà mạng</span></th>
-                    <th><span>Mệnh giá</span></th>
-                    <th><span>Serial</span></th>
-                    <th><span>Code</span></th>
-                    <th><span>Thời gian xuất</span></th>
+                    <th>Người dùng</th>
+                    <th>Nhà mạng</th>
+                    <th>Mệnh giá</th>
+                    <th>Serial</th>
+                    <th>Code</th>
+                    <th>Ngày xuất</th>
+                    <th>Ngày nạp</th>
+                    <th>Mệnh giá thực</th>
+                    <th>Trạng thái</th>
                     <th>Cập nhật</th>
                 </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="6">Không có dữ liệu</td>
+                        <td colspan="10">Không có dữ liệu</td>
                     </tr>
                 </tbody>
             </ng-container>

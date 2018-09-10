@@ -45,17 +45,24 @@ export class CardMySuffixService {
             .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
     }
 
-    queryByUser(req?: any): Observable<EntityArrayResponseType> {
+    getCardByUser(req?: any): Observable<EntityArrayResponseType> {
         const options = createRequestOption(req);
         return this.http
             .get<ICardMySuffix[]>(SERVER_API_URL + 'api/get-card-by-user', { params: options, observe: 'response' })
             .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
     }
 
-    getCardByUser(req?: any): Observable<EntityArrayResponseType> {
+    queryByAdmin(req?: any): Observable<EntityArrayResponseType> {
         const options = createRequestOption(req);
         return this.http
-            .get<ICardMySuffix[]>(SERVER_API_URL + 'api/get-card-by-user', { params: options, observe: 'response' })
+            .get<ICardMySuffix[]>(SERVER_API_URL + '/api/view-card-by-admin', { params: options, observe: 'response' })
+            .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    }
+
+    queryByUser(req?: any): Observable<EntityArrayResponseType> {
+        const options = createRequestOption(req);
+        return this.http
+            .get<ICardMySuffix[]>(SERVER_API_URL + 'api/view-card-by-user', { params: options, observe: 'response' })
             .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
     }
 
