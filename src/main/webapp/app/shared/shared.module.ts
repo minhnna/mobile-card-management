@@ -8,13 +8,14 @@ import {
     JhiLoginModalComponent,
     HasAnyAuthorityDirective
 } from './';
+import { MoneyFormatPipe } from './pipes/money-format.pipe';
 
 @NgModule({
     imports: [MobileCardManagementSharedLibsModule, MobileCardManagementSharedCommonModule],
-    declarations: [JhiLoginModalComponent, HasAnyAuthorityDirective],
+    declarations: [JhiLoginModalComponent, HasAnyAuthorityDirective, MoneyFormatPipe],
     providers: [{ provide: NgbDateAdapter, useClass: NgbDateMomentAdapter }],
     entryComponents: [JhiLoginModalComponent],
-    exports: [MobileCardManagementSharedCommonModule, JhiLoginModalComponent, HasAnyAuthorityDirective],
+    exports: [MobileCardManagementSharedCommonModule, JhiLoginModalComponent, HasAnyAuthorityDirective, MoneyFormatPipe],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MobileCardManagementSharedModule {}

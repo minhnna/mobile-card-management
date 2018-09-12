@@ -1,12 +1,17 @@
-<form name="changeForm" (ngSubmit)="confirmChange(card.id)">
+<form name="changeForm" (ngSubmit)="confirmChange()">
     <div class="modal-header">
-        <h4 class="modal-title">Confirm change operation</h4>
+        <h4 class="modal-title">Mệnh giá</h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 (click)="clear()">&times;</button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <p id="jhi-change-card-heading">Are you sure you want to change this Card?</p>
+        <div *ngFor="let value of values" class="price-container" [ngClass]="updateCard.price === value ? 'checked' : ''">
+            <label>
+                <input class="hidden-radio" type="radio" name="price" [(ngModel)]="updateCard.price"
+                    [value]="value">&nbsp;{{value|moneyFormat}}
+            </label>
+        </div>
     </div>
     <div class="modal-footer">
         <button id="jhi-confirm-change-card" type="submit" class="btn btn-success">

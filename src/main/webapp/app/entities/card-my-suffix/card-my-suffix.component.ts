@@ -10,6 +10,8 @@ import { Principal } from 'app/core';
 import { ITEMS_PER_PAGE } from 'app/shared';
 import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
+import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { CardMySuffixChangeDialogComponent } from './card-my-suffix-change-dialog.component';
 
 @Component({
     selector: 'jhi-card-my-suffix',
@@ -39,6 +41,8 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     amountOf = DATA.amountOf;
     values = DATA.values;
 
+    modalRef: NgbModalRef;
+
     constructor(
         private cardService: CardMySuffixService,
         private parseLinks: JhiParseLinks,
@@ -46,7 +50,8 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
         private principal: Principal,
         private activatedRoute: ActivatedRoute,
         private router: Router,
-        private eventManager: JhiEventManager
+        private eventManager: JhiEventManager,
+        private modalService: NgbModal
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.routeData = this.activatedRoute.data.subscribe(data => {
@@ -106,6 +111,20 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
             this.currentAccount = account;
         });
         // this.registerChangeInCards();
+        this.eventSubscriber = this.eventManager.subscribe('updateSuccess', response => this.popOutChangedCard(response.data));
+    }
+
+    popOutChangedCard(data) {
+        let cardIndex;
+        this.cards.forEach((card, index) => {
+            if (card.id === data.id) {
+                cardIndex = index;
+            }
+        });
+
+        if (typeof cardIndex === 'number') {
+            this.cards.splice(cardIndex, 1);
+        }
     }
 
     ngOnDestroy() {
@@ -131,19 +150,29 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     }
 
     receiveCard() {
+        const params = {
+            mobileService: this.selectionMobileService.toUpperCase()
+        };
+        if (this.selectionValue) {
+            params.price = this.selectionValue;
+        }
+
+        if (this.selectionAmountOf) {
+            params.quantity = this.selectionAmountOf;
+        }
         this.cardService
-            .getCardByUser({
-                mobileService: this.selectionMobileService.toUpperCase(),
-                price: this.selectionValue,
-                quantity: this.selectionAmountOf
-            })
+            .getCardByUser(params)
             .subscribe(
-                (res: HttpResponse<ICardMySuffix[]>) => this.pushIntoListCard(res),
+                (res: HttpResponse<ICardMySuffix[]>) => this.pushIntoListCard(res.body),
                 (res: HttpErrorResponse) => this.onError(res.message)
             );
     }
 
     pushIntoListCard(data) {
+        if (!this.cards) {
+            this.cards = [];
+        }
+
         if (data && data.length) {
             if (data.length === 1) {
                 this.cards.push(data[0]);
@@ -153,6 +182,11 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
                 });
             }
         }
+    }
+
+    openChange(card) {
+        this.modalRef = this.modalService.open(CardMySuffixChangeDialogComponent, { size: 'lg' });
+        this.modalRef.componentInstance.card = card;
     }
 
     private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {

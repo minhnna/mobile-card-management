@@ -26,10 +26,10 @@
         <div class="col-md-2">
             <input type="text" class="form-control" [(ngModel)]="to">
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             <button type="button" class="btn btn-primary" (click)="search()">Tìm kiếm</button>
         </div>
-        <div class="col-md-2 float-right">
+        <div class="col-md-1">
             <button type="button" class="btn btn-primary" (click)="export()">Export</button>
         </div>
     </div><br>
@@ -74,6 +74,7 @@
                     <tr>
                         <td colspan="6">Tổng</td>
                         <td></td>
+                        <td colspan="2"></td>
                     </tr>
                 </tbody>
             </ng-container>

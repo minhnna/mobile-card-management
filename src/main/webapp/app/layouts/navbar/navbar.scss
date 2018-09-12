@@ -76,3 +76,26 @@ Logo styles
         }
     }
 }
+
+.hidden-radio {
+    display: none;
+}
+
+.price-container {
+    margin-top: 5px;
+    display: inline-block;
+    width: 100px;
+    border: 1px solid #111111;
+    margin-right: 5px;
+    &:last-child {
+        margin-right: 0;
+    }
+    &.checked {
+        background-color: #0dff92;
+    }
+    label {
+        margin: 0;
+        padding: 5px;
+        width: 100%;
+    }
+}
