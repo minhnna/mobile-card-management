@@ -12,10 +12,10 @@ import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
 
 @Component({
-    selector: 'jhi-card-my-suffix',
-    templateUrl: './card-my-suffix.component.html'
+    selector: 'jhi-card-my-suffix-left',
+    templateUrl: './card-my-suffix-left.component.html'
 })
-export class CardMySuffixComponent implements OnInit, OnDestroy {
+export class CardMySuffixLeftComponent implements OnInit, OnDestroy {
     currentAccount: any;
     cards: ICardMySuffix[];
     error: any;
@@ -59,7 +59,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
 
     loadAll() {
         this.cardService
-            .query({
+            .getExpiredCard({
                 page: this.page - 1,
                 size: this.itemsPerPage,
                 sort: this.sort()
@@ -78,7 +78,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/card-my-suffix'], {
+        this.router.navigate(['/card-by-admin'], {
             queryParams: {
                 page: this.page,
                 size: this.itemsPerPage,
@@ -91,7 +91,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     clear() {
         this.page = 0;
         this.router.navigate([
-            '/card-my-suffix',
+            '/card-by-admin',
             {
                 page: this.page,
                 sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc')
@@ -101,11 +101,15 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        // this.loadAll();
+        this.loadAll();
         this.principal.identity().then(account => {
             this.currentAccount = account;
         });
         // this.registerChangeInCards();
+
+        setInterval(() => {
+            this.loadAll();
+        }, 60000);
     }
 
     ngOnDestroy() {
@@ -131,28 +135,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     }
 
     receiveCard() {
-        this.cardService
-            .getCardByUser({
-                mobileService: this.selectionMobileService.toUpperCase(),
-                price: this.selectionValue,
-                quantity: this.selectionAmountOf
-            })
-            .subscribe(
-                (res: HttpResponse<ICardMySuffix[]>) => this.pushIntoListCard(res),
-                (res: HttpErrorResponse) => this.onError(res.message)
-            );
-    }
-
-    pushIntoListCard(data) {
-        if (data && data.length) {
-            if (data.length === 1) {
-                this.cards.push(data[0]);
-            } else {
-                data.forEach(card => {
-                    this.cards.push(card);
-                });
-            }
-        }
+        console.log(this.selectionMobileService, this.selectionAmountOf, this.selectionValue);
     }
 
     private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {
@@ -160,6 +143,7 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
         this.totalItems = parseInt(headers.get('X-Total-Count'), 10);
         this.queryCount = this.totalItems;
         this.cards = data;
+        console.log(this.cards);
     }
 
     private onError(errorMessage: string) {

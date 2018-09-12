@@ -7,3 +7,4 @@ export * from './card-my-suffix.component';
 export * from './card-my-suffix.route';
 export * from './card-my-suffix-view-user.component';
 export * from './card-my-suffix-view-admin.component';
+export * from './card-my-suffix-left.component';

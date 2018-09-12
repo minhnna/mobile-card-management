@@ -12,6 +12,7 @@ import {
     CardMySuffixChangeDialogComponent,
     CardMySuffixViewUserComponent,
     CardMySuffixViewAdminComponent,
+    CardMySuffixLeftComponent,
     cardRoute,
     cardPopupRoute
 } from './';
@@ -29,6 +30,7 @@ const ENTITY_STATES = [...cardRoute, ...cardPopupRoute];
         CardMySuffixChangePopupComponent,
         CardMySuffixChangeDialogComponent,
         CardMySuffixViewAdminComponent,
+        CardMySuffixLeftComponent,
         CardMySuffixViewUserComponent
     ],
     entryComponents: [
@@ -39,6 +41,7 @@ const ENTITY_STATES = [...cardRoute, ...cardPopupRoute];
         CardMySuffixChangePopupComponent,
         CardMySuffixChangeDialogComponent,
         CardMySuffixViewAdminComponent,
+        CardMySuffixLeftComponent,
         CardMySuffixViewUserComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]

@@ -10,6 +10,7 @@ import { CardMySuffixService } from './card-my-suffix.service';
 import { CardMySuffixComponent } from './card-my-suffix.component';
 import { CardMySuffixViewUserComponent } from './card-my-suffix-view-user.component';
 import { CardMySuffixViewAdminComponent } from './card-my-suffix-view-admin.component';
+import { CardMySuffixLeftComponent } from './card-my-suffix-left.component';
 import { CardMySuffixDetailComponent } from './card-my-suffix-detail.component';
 import { CardMySuffixUpdateComponent } from './card-my-suffix-update.component';
 import { CardMySuffixDeletePopupComponent } from './card-my-suffix-delete-dialog.component';
@@ -94,6 +95,18 @@ export const cardRoute: Routes = [
     {
         path: 'card-by-admin',
         component: CardMySuffixViewAdminComponent,
+        resolve: {
+            pagingParams: JhiResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Cards'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+    {
+        path: 'card-left',
+        component: CardMySuffixLeftComponent,
         resolve: {
             pagingParams: JhiResolvePagingParams
         },
