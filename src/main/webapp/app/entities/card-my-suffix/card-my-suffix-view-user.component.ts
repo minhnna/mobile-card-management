@@ -10,6 +10,7 @@ import { Principal } from 'app/core';
 import { ITEMS_PER_PAGE } from 'app/shared';
 import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
+import * as Moment from 'moment';
 
 @Component({
     selector: 'jhi-card-my-suffix-view-user',
@@ -132,7 +133,20 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     }
 
     export() {
-        console.log('export');
+        const fromDateString = Moment(this.from).format('YYYY-MM-DD');
+        const toDateString = Moment(this.to).format('YYYY-MM-DD');
+        const req = {
+            fromDate: fromDateString,
+            toDate: toDateString
+        };
+
+        this.cardService.export(req).subscribe(data => {
+            const downloadURL = window.URL.createObjectURL(new Blob([data.body], { type: 'application/vnd.ms-excel' }));
+            const link = document.createElement('a');
+            link.href = downloadURL;
+            link.download = this.currentAccount.login + '_' + req.fromDate + '_' + req.toDate + '.xlsx';
+            link.click();
+        });
     }
 
     search() {

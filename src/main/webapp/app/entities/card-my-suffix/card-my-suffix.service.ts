@@ -77,6 +77,15 @@ export class CardMySuffixService {
         return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 
+    export(req?: any): any {
+        const options = createRequestOption(req);
+        return this.http.get<any>(SERVER_API_URL + 'api/generate-excel-by-user', {
+            params: options,
+            observe: 'response',
+            responseType: 'blob' as 'json'
+        });
+    }
+
     private convertDateFromClient(card: ICardMySuffix): ICardMySuffix {
         const copy: ICardMySuffix = Object.assign({}, card, {
             createdDate: card.createdDate != null && card.createdDate.isValid() ? card.createdDate.toJSON() : null,
