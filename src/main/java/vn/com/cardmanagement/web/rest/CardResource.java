@@ -27,6 +27,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
@@ -134,6 +135,7 @@ public class CardResource {
     @Timed
     public ResponseEntity<List<CardDTO>> viewCardsByUser(Pageable pageable, CardQueryCondition cardQueryCondition) {
         log.debug("REST request to view old Cards by user");
+        cardQueryCondition.convertDateToMilliseconds();
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cardQueryCondition.setUserId(userDetails.getUsername());
         Page<CardDTO> page = cardService.findOldCards(pageable, cardQueryCondition);
@@ -143,13 +145,13 @@ public class CardResource {
 
     @GetMapping("/generate-excel-by-user")
     @Timed
-    public ResponseEntity<InputStreamResource> generateExcelByUser(CardQueryCondition cardQueryCondition) {
+    public ResponseEntity<InputStreamResource> generateExcelByUser(CardQueryCondition cardQueryCondition) throws ParseException {
         log.debug("REST request to generate Excel by user");
-        Date fromTime = new Date(Long.parseLong(cardQueryCondition.getFromDate()));
-        String fromDate =  new SimpleDateFormat("yyyy-MM-dd").format(fromTime);
-        Date toTime = new Date(Long.parseLong(cardQueryCondition.getToDate()));
-        String toDate =  new SimpleDateFormat("yyyy-MM-dd").format(toTime);
+
+        String fromDate = cardQueryCondition.getFromDate();
+        String toDate = cardQueryCondition.getToDate();
         String excelFileName = fromDate.concat(toDate).concat(".xlsx");
+        cardQueryCondition.convertDateToMilliseconds();
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cardQueryCondition.setUserId(userDetails.getUsername());
         File archivo = cardService.exportReportForUser(cardQueryCondition);
@@ -173,6 +175,7 @@ public class CardResource {
     @Timed
     public ResponseEntity<List<CardDTO>> viewCardsByAdmin(Pageable pageable, CardQueryCondition cardQueryCondition) {
         log.debug("REST request to view old Cards by admin");
+        cardQueryCondition.convertDateToMilliseconds();
         Page<CardDTO> page = cardService.findOldCards(pageable, cardQueryCondition);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/cards");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

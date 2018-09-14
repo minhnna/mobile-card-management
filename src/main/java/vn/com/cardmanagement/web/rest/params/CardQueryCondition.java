@@ -1,7 +1,13 @@
 package vn.com.cardmanagement.web.rest.params;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 import vn.com.cardmanagement.config.Constants;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CardQueryCondition {
 
@@ -78,5 +84,25 @@ public class CardQueryCondition {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    @JsonIgnore
+    public void convertDateToMilliseconds(){
+        if(!Strings.isNullOrEmpty(fromDate)) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+                fromDate = String.valueOf(sdf.parse(fromDate).getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        if(!Strings.isNullOrEmpty(toDate)) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+                toDate = String.valueOf(sdf.parse(toDate).getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
