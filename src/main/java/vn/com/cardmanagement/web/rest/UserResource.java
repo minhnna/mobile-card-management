@@ -4,6 +4,7 @@ import vn.com.cardmanagement.config.Constants;
 import vn.com.cardmanagement.domain.User;
 import vn.com.cardmanagement.repository.UserRepository;
 import vn.com.cardmanagement.security.AuthoritiesConstants;
+import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.service.MailService;
 import vn.com.cardmanagement.service.UserService;
 import vn.com.cardmanagement.service.dto.UserDTO;
@@ -61,14 +62,16 @@ public class UserResource {
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
 
     private final UserService userService;
+    private final CardService cardService;
 
     private final UserRepository userRepository;
 
     private final MailService mailService;
 
-    public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
+    public UserResource(UserService userService, CardService cardService, UserRepository userRepository, MailService mailService) {
 
         this.userService = userService;
+        this.cardService = cardService;
         this.userRepository = userRepository;
         this.mailService = mailService;
     }
@@ -148,6 +151,14 @@ public class UserResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/pending-users")
+    @Timed
+    public ResponseEntity<List<UserDTO>> getAllUsersHavePendingCards(Pageable pageable) {
+        final Page<UserDTO> page = cardService.getAllManagedPendingUsers(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
     /**
      * @return a string list of the all of the roles
      */
@@ -187,4 +198,6 @@ public class UserResource {
         userService.deleteUser(login);
         return ResponseEntity.ok().headers(HeaderUtil.createAlert( "A user is deleted with identifier " + login, login)).build();
     }
+
+
 }

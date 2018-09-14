@@ -5,6 +5,7 @@ import vn.com.cardmanagement.domain.Authority;
 import vn.com.cardmanagement.domain.User;
 import vn.com.cardmanagement.repository.UserRepository;
 import vn.com.cardmanagement.security.AuthoritiesConstants;
+import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.service.MailService;
 import vn.com.cardmanagement.service.UserService;
 import vn.com.cardmanagement.service.dto.UserDTO;
@@ -76,6 +77,9 @@ public class UserResourceIntTest {
     private UserService userService;
 
     @Autowired
+    private CardService cardService;
+
+    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -98,7 +102,7 @@ public class UserResourceIntTest {
     public void setup() {
         cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).clear();
         cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE).clear();
-        UserResource userResource = new UserResource(userService, userRepository, mailService);
+        UserResource userResource = new UserResource(userService, cardService, userRepository, mailService);
 
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)

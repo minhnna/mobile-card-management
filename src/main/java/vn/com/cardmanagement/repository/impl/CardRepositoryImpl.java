@@ -83,20 +83,31 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         CustomFieldQuery query = new CustomFieldQuery();
         query.with(pageable);
         query.with(new Sort(Sort.Direction.DESC, "updated_date"));
-        log.info("Find new card:" + cardQueryCondition.toString());
+        log.info("Find old card:" + cardQueryCondition.toString());
         if (cardQueryCondition.getMobileService() != null) {
             query.addCriteria(Criteria.where("mobile_service").is(cardQueryCondition.getMobileService().toString()));
         }
         if (cardQueryCondition.getPrice() != 0) {
             query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
         }
+        Criteria gte = null,lte = null;
         if (!Strings.isNullOrEmpty(cardQueryCondition.getFromDate())) {
             Instant fromDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getFromDate()));
-            query.addCriteria(Criteria.where("created_date").gte(fromDate));
+            gte = Criteria.where("created_date").gte(fromDate);
         }
         if (!Strings.isNullOrEmpty(cardQueryCondition.getToDate())) {
             Instant toDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getToDate()));
-            query.addCriteria(Criteria.where("created_date").lte(toDate));
+            lte= Criteria.where("created_date").lte(toDate);
+        }
+        if(gte!=null && lte !=null) {
+            query.addCriteria(new Criteria().andOperator(gte, lte));
+        } else {
+            if (gte!=null){
+                query.addCriteria(gte);
+            }
+            if (lte!=null){
+                query.addCriteria(lte);
+            }
         }
         if (!Strings.isNullOrEmpty(cardQueryCondition.getUserId())) {
             query.addCriteria(Criteria.where("user_id").is(cardQueryCondition.getUserId()));
@@ -105,6 +116,43 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         List<Card> cardList = mongoTemplate.find(query, Card.class);
         Long total = mongoTemplate.count(query, Card.class);
         return new PageImpl<>(cardList, pageable, total);
+    }
+
+    @Override
+    public List<Card> findOldCard(CardQueryCondition cardQueryCondition) {
+        CustomFieldQuery query = new CustomFieldQuery();
+        query.with(new Sort(Sort.Direction.DESC, "updated_date"));
+        log.info("Find old card for report:" + cardQueryCondition.toString());
+        if (cardQueryCondition.getMobileService() != null) {
+            query.addCriteria(Criteria.where("mobile_service").is(cardQueryCondition.getMobileService().toString()));
+        }
+        if (cardQueryCondition.getPrice() != 0) {
+            query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
+        }
+        Criteria gte = null,lte = null;
+        if (!Strings.isNullOrEmpty(cardQueryCondition.getFromDate())) {
+            Instant fromDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getFromDate()));
+            gte = Criteria.where("created_date").gte(fromDate);
+        }
+        if (!Strings.isNullOrEmpty(cardQueryCondition.getToDate())) {
+            Instant toDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getToDate()));
+            lte= Criteria.where("created_date").lte(toDate);
+        }
+        if(gte!=null && lte !=null) {
+            query.addCriteria(new Criteria().andOperator(gte, lte));
+        } else {
+            if (gte!=null){
+                query.addCriteria(gte);
+            }
+            if (lte!=null){
+                query.addCriteria(lte);
+            }
+        }
+        if (!Strings.isNullOrEmpty(cardQueryCondition.getUserId())) {
+            query.addCriteria(Criteria.where("user_id").is(cardQueryCondition.getUserId()));
+        }
+//        query.addCriteria(Criteria.where("status").ne("NEW"));
+        return mongoTemplate.find(query, Card.class);
     }
 
     @Override
