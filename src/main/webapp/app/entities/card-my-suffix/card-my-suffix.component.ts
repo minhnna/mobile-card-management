@@ -154,11 +154,11 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
             mobileService: this.selectionMobileService.toUpperCase()
         };
         if (this.selectionValue) {
-            params.price = this.selectionValue;
+            params['price'] = this.selectionValue;
         }
 
         if (this.selectionAmountOf) {
-            params.quantity = this.selectionAmountOf;
+            params['quantity'] = this.selectionAmountOf;
         }
         this.cardService
             .getCardByUser(params)

@@ -31,13 +31,14 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     previousPage: any;
     reverse: any;
 
-    selectionMobileService = '';
-    selectionAmountOf = '';
-    selectionValue = '';
-
     mobileServices = DATA.mobileServices;
     amountOf = DATA.amountOf;
     values = DATA.values;
+    from: any;
+    to: any;
+    selectionMobileService = '';
+    selectionStatus: any;
+    selectionValue = '';
 
     constructor(
         private cardService: CardMySuffixService,
@@ -130,8 +131,12 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
         return result;
     }
 
-    receiveCard() {
-        console.log(this.selectionMobileService, this.selectionAmountOf, this.selectionValue);
+    export() {
+        console.log('export');
+    }
+
+    search() {
+        console.log('search');
     }
 
     private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {

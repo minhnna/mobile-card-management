@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({ name: 'moneyFormat' })
 export class MoneyFormatPipe implements PipeTransform {
-    transform(value: number, exponent: string): string {
+    transform(value: number, exponent?: string): string {
         switch (value) {
             case 10000:
                 return '10,000 đ';
