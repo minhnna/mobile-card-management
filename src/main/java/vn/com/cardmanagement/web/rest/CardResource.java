@@ -2,6 +2,8 @@ package vn.com.cardmanagement.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Strings;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import vn.com.cardmanagement.config.Constants;
@@ -21,14 +23,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing Card.
@@ -123,7 +124,7 @@ public class CardResource {
     @GetMapping("/get-expired-card")
     @Timed
     public ResponseEntity<List<CardDTO>> getExpiredCard(Pageable pageable) {
-        log.debug("REST request to get quantity of Cards");
+        log.debug("REST request to get expired Cards");
         Page<CardDTO> page = cardService.findExpiredCards(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/get-expired-card");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -132,7 +133,7 @@ public class CardResource {
     @GetMapping("/view-card-by-user")
     @Timed
     public ResponseEntity<List<CardDTO>> viewCardsByUser(Pageable pageable, CardQueryCondition cardQueryCondition) {
-        log.debug("REST request to view old Cards");
+        log.debug("REST request to view old Cards by user");
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cardQueryCondition.setUserId(userDetails.getUsername());
         Page<CardDTO> page = cardService.findOldCards(pageable, cardQueryCondition);
@@ -140,10 +141,38 @@ public class CardResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/generate-excel-by-user")
+    @Timed
+    public ResponseEntity<InputStreamResource> generateExcelByUser(CardQueryCondition cardQueryCondition) {
+        log.debug("REST request to generate Excel by user");
+        Date fromTime = new Date(Long.parseLong(cardQueryCondition.getFromDate()));
+        String fromDate =  new SimpleDateFormat("yyyy-MM-dd").format(fromTime);
+        Date toTime = new Date(Long.parseLong(cardQueryCondition.getToDate()));
+        String toDate =  new SimpleDateFormat("yyyy-MM-dd").format(toTime);
+        String excelFileName = fromDate.concat(toDate).concat(".xlsx");
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        cardQueryCondition.setUserId(userDetails.getUsername());
+        File archivo = cardService.exportReportForUser(cardQueryCondition);
+        InputStream file = null;
+        try {
+            file = new FileInputStream(archivo);
+        } catch (FileNotFoundException e) {
+            log.info("ERROR export file");
+            e.printStackTrace();
+        }
+//        byte[] documentContent = archivo.toByteArray();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+//        headers.setContentType(MediaType.parseMediaType("application/vnd.ms-excel"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"myexcelfile.xlsx\"");
+//        headers.setContentLength(documentContent.length);
+        return new ResponseEntity<InputStreamResource>(new InputStreamResource(file), headers, HttpStatus.OK);
+    }
+
     @GetMapping("/view-card-by-admin")
     @Timed
     public ResponseEntity<List<CardDTO>> viewCardsByAdmin(Pageable pageable, CardQueryCondition cardQueryCondition) {
-        log.debug("REST request to view old Cards");
+        log.debug("REST request to view old Cards by admin");
         Page<CardDTO> page = cardService.findOldCards(pageable, cardQueryCondition);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/cards");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

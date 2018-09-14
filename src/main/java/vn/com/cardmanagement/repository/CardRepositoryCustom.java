@@ -21,4 +21,6 @@ public interface CardRepositoryCustom {
     Page<Card> findExpiredCard(Pageable pageable);
 
     Card findOne(String id);
+
+    List<Card> findOldCard(CardQueryCondition cardQueryCondition);
 }
