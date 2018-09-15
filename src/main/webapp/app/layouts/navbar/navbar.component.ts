@@ -46,6 +46,22 @@ export class NavbarComponent implements OnInit {
         return this.principal.isAuthenticated();
     }
 
+    isRoleUser() {
+        return this.principal.isRoleUser();
+    }
+
+    isRoleBigUser() {
+        return this.principal.isRoleBigUser();
+    }
+
+    isRoleHomeUser() {
+        return this.principal.isRoleHomeUser();
+    }
+
+    isRoleAdmin() {
+        return this.principal.isRoleAdmin();
+    }
+
     login() {
         this.modalRef = this.loginModalService.open();
     }

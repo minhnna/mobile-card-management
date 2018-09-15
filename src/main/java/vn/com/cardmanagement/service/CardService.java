@@ -5,10 +5,8 @@ import vn.com.cardmanagement.service.dto.CardDTO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.com.cardmanagement.service.dto.UserDTO;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
@@ -62,5 +60,5 @@ public interface CardService {
 
     File exportReportForUser(CardQueryCondition cardQueryCondition);
 
-    Page<UserDTO> getAllManagedPendingUsers(Pageable pageable);
+    Page<String> getAllManagedPendingUsers(Pageable pageable);
 }

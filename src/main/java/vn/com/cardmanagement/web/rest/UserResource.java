@@ -153,8 +153,8 @@ public class UserResource {
 
     @GetMapping("/pending-users")
     @Timed
-    public ResponseEntity<List<UserDTO>> getAllUsersHavePendingCards(Pageable pageable) {
-        final Page<UserDTO> page = cardService.getAllManagedPendingUsers(pageable);
+    public ResponseEntity<List<String>> getAllUsersHavePendingCards(Pageable pageable) {
+        final Page<String> page = cardService.getAllManagedPendingUsers(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.convert.QueryMapper;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,7 +19,9 @@ import vn.com.cardmanagement.repository.CardRepositoryCustom;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CardRepositoryImpl implements CardRepositoryCustom {
@@ -90,22 +93,22 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         if (cardQueryCondition.getPrice() != 0) {
             query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
         }
-        Criteria gte = null,lte = null;
+        Criteria gte = null, lte = null;
         if (!Strings.isNullOrEmpty(cardQueryCondition.getFromDate())) {
             Instant fromDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getFromDate()));
             gte = Criteria.where("created_date").gte(fromDate);
         }
         if (!Strings.isNullOrEmpty(cardQueryCondition.getToDate())) {
             Instant toDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getToDate()));
-            lte= Criteria.where("created_date").lte(toDate);
+            lte = Criteria.where("created_date").lte(toDate);
         }
-        if(gte!=null && lte !=null) {
+        if (gte != null && lte != null) {
             query.addCriteria(new Criteria().andOperator(gte, lte));
         } else {
-            if (gte!=null){
+            if (gte != null) {
                 query.addCriteria(gte);
             }
-            if (lte!=null){
+            if (lte != null) {
                 query.addCriteria(lte);
             }
         }
@@ -129,22 +132,22 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         if (cardQueryCondition.getPrice() != 0) {
             query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
         }
-        Criteria gte = null,lte = null;
+        Criteria gte = null, lte = null;
         if (!Strings.isNullOrEmpty(cardQueryCondition.getFromDate())) {
             Instant fromDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getFromDate()));
             gte = Criteria.where("created_date").gte(fromDate);
         }
         if (!Strings.isNullOrEmpty(cardQueryCondition.getToDate())) {
             Instant toDate = Instant.ofEpochMilli(Long.parseLong(cardQueryCondition.getToDate()));
-            lte= Criteria.where("created_date").lte(toDate);
+            lte = Criteria.where("created_date").lte(toDate);
         }
-        if(gte!=null && lte !=null) {
+        if (gte != null && lte != null) {
             query.addCriteria(new Criteria().andOperator(gte, lte));
         } else {
-            if (gte!=null){
+            if (gte != null) {
                 query.addCriteria(gte);
             }
-            if (lte!=null){
+            if (lte != null) {
                 query.addCriteria(lte);
             }
         }
@@ -160,7 +163,7 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         CustomFieldQuery query = new CustomFieldQuery();
         query.addCriteria(Criteria.where("status").is("NEW"));
         query.addCriteria(Criteria.where("created_date").lte(
-            Instant.ofEpochMilli(System.currentTimeMillis()-EXPIRED_TIME)));
+            Instant.ofEpochMilli(System.currentTimeMillis() - EXPIRED_TIME)));
         List<Card> cardList = mongoTemplate.find(query, Card.class);
         Long total = mongoTemplate.count(query, Card.class);
         return new PageImpl<>(cardList, pageable, total);
@@ -170,6 +173,21 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
     public Card findOne(String id) {
         Query query = new Query();
         query.addCriteria(Criteria.where("id").is(id));
-        return mongoTemplate.findOne(query,Card.class);
+        return mongoTemplate.findOne(query, Card.class);
+    }
+
+    @Override
+    public Page<String> getAllManagedPendingUsers(Pageable pageable) {
+        QueryMapper mapper = new QueryMapper(mongoTemplate.getConverter());
+        CustomFieldQuery userIdQuery = new CustomFieldQuery();
+        userIdQuery.with(new Sort(Sort.Direction.ASC, "exported_date"));
+        userIdQuery.fields().include("user_id");
+        userIdQuery.addCriteria(Criteria.where("status").is(String.valueOf(Constants.Status.PENDING)));
+        org.bson.Document mappedQuery = mapper.getMappedObject(userIdQuery.getQueryObject(), Optional.empty());
+        List<String> userIds = mongoTemplate.getCollection("card")
+            .distinct("user_id", mappedQuery, String.class)
+            .into(new ArrayList<>());
+        Long total = Long.valueOf(userIds.size());
+        return new PageImpl<>(userIds, pageable, total);
     }
 }

@@ -69,7 +69,7 @@ export class CardMySuffixService {
     getExpiredCard(req?: any): Observable<EntityArrayResponseType> {
         const options = createRequestOption(req);
         return this.http
-            .get<ICardMySuffix[]>(SERVER_API_URL + 'api/get-expired-car', { params: options, observe: 'response' })
+            .get<ICardMySuffix[]>(SERVER_API_URL + 'api/get-expired-card', { params: options, observe: 'response' })
             .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
     }
 

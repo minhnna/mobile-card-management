@@ -88,6 +88,34 @@ export class Principal {
         return this.authenticated;
     }
 
+    isRoleBigUser(): boolean {
+        if (this.userIdentity && this.userIdentity.authorities) {
+            return this.userIdentity.authorities.includes('ROLE_BIG_USER');
+        }
+        return false;
+    }
+
+    isRoleUser(): boolean {
+        if (this.userIdentity && this.userIdentity.authorities) {
+            return this.userIdentity.authorities.includes('ROLE_BIG_USER') || this.userIdentity.authorities.includes('ROLE_USER');
+        }
+        return false;
+    }
+
+    isRoleHomeUser(): boolean {
+        if (this.userIdentity && this.userIdentity.authorities) {
+            return this.userIdentity.authorities.includes('ROLE_HOME_USER');
+        }
+        return false;
+    }
+
+    isRoleAdmin(): boolean {
+        if (this.userIdentity && this.userIdentity.authorities) {
+            return this.userIdentity.authorities.includes('ROLE_ADMIN');
+        }
+        return false;
+    }
+
     isIdentityResolved(): boolean {
         return this.userIdentity !== undefined;
     }

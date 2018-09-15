@@ -8,7 +8,6 @@ import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.domain.Card;
 import vn.com.cardmanagement.repository.CardRepository;
 import vn.com.cardmanagement.service.dto.CardDTO;
-import vn.com.cardmanagement.service.dto.UserDTO;
 import vn.com.cardmanagement.service.mapper.CardMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,7 +214,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Page<UserDTO> getAllManagedPendingUsers(Pageable pageable) {
-        return null;
+    public Page<String> getAllManagedPendingUsers(Pageable pageable) {
+        return cardRepository.getAllManagedPendingUsers(pageable);
     }
 }
