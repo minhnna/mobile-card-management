@@ -8,6 +8,7 @@ import { ICardMySuffix } from 'app/shared/model/card-my-suffix.model';
 import { Principal } from 'app/core';
 
 import { ITEMS_PER_PAGE } from 'app/shared';
+import { DATE_TIME_FORMAT, DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
 import * as Moment from 'moment';
@@ -35,10 +36,11 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     mobileServices = DATA.mobileServices;
     amountOf = DATA.amountOf;
     values = DATA.values;
+    statuses = DATA.statuses;
     from: any;
     to: any;
     selectionMobileService = '';
-    selectionStatus: any;
+    selectionStatus = '';
     selectionValue = '';
 
     constructor(
@@ -60,12 +62,34 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
+        const params = {
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            sort: this.sort()
+        };
+
+        if (this.selectionMobileService) {
+            params['mobileService'] = this.selectionMobileService.toUpperCase();
+        }
+
+        if (this.selectionValue) {
+            params['price'] = this.selectionValue;
+        }
+
+        if (this.selectionStatus) {
+            params['status'] = this.selectionStatus;
+        }
+
+        if (this.from) {
+            params['fromDate'] = Moment(this.from).format(DATE_FORMAT);
+        }
+
+        if (this.to) {
+            params['toDate'] = Moment(this.to).format(DATE_FORMAT);
+        }
+
         this.cardService
-            .queryByUser({
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            })
+            .queryByUser(params)
             .subscribe(
                 (res: HttpResponse<ICardMySuffix[]>) => this.paginateCards(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res.message)
@@ -133,8 +157,8 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     }
 
     export() {
-        const fromDateString = Moment(this.from).format('YYYY-MM-DD');
-        const toDateString = Moment(this.to).format('YYYY-MM-DD');
+        const fromDateString = Moment(this.from).format(DATE_FORMAT);
+        const toDateString = Moment(this.to).format(DATE_FORMAT);
         const req = {
             fromDate: fromDateString,
             toDate: toDateString
@@ -150,7 +174,7 @@ export class CardMySuffixViewUserComponent implements OnInit, OnDestroy {
     }
 
     search() {
-        console.log('search');
+        this.loadAll();
     }
 
     private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {

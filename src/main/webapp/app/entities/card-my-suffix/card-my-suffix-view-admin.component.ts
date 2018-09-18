@@ -5,11 +5,13 @@ import { Subscription } from 'rxjs';
 import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 
 import { ICardMySuffix } from 'app/shared/model/card-my-suffix.model';
-import { Principal } from 'app/core';
 
+import { Principal, UserService, User } from 'app/core';
+import { DATE_TIME_FORMAT, DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { ITEMS_PER_PAGE } from 'app/shared';
 import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
+import * as Moment from 'moment';
 
 @Component({
     selector: 'jhi-card-my-suffix-view-admin',
@@ -17,6 +19,7 @@ import { DATA } from 'app/shared/constants/data.constants';
 })
 export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     currentAccount: any;
+    allUsers: User[];
     cards: ICardMySuffix[];
     error: any;
     success: any;
@@ -34,11 +37,13 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     mobileServices = DATA.mobileServices;
     amountOf = DATA.amountOf;
     values = DATA.values;
+    statuses = DATA.statuses;
     from: any;
     to: any;
     selectionMobileService = '';
-    selectionStatus: any;
+    selectionStatus = '';
     selectionValue = '';
+    selectionUserId = '';
 
     constructor(
         private cardService: CardMySuffixService,
@@ -47,7 +52,8 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
         private principal: Principal,
         private activatedRoute: ActivatedRoute,
         private router: Router,
-        private eventManager: JhiEventManager
+        private eventManager: JhiEventManager,
+        private userService: UserService
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.routeData = this.activatedRoute.data.subscribe(data => {
@@ -59,12 +65,38 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
+        const params = {
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            sort: this.sort()
+        };
+
+        if (this.selectionMobileService) {
+            params['mobileService'] = this.selectionMobileService.toUpperCase();
+        }
+
+        if (this.selectionValue) {
+            params['price'] = this.selectionValue;
+        }
+
+        if (this.selectionStatus) {
+            params['status'] = this.selectionStatus;
+        }
+
+        if (this.from) {
+            params['fromDate'] = Moment(this.from).format(DATE_FORMAT);
+        }
+
+        if (this.to) {
+            params['toDate'] = Moment(this.to).format(DATE_FORMAT);
+        }
+
+        if (this.selectionUserId) {
+            params['userId'] = this.selectionUserId;
+        }
+
         this.cardService
-            .queryByAdmin({
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            })
+            .queryByAdmin(params)
             .subscribe(
                 (res: HttpResponse<ICardMySuffix[]>) => this.paginateCards(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res.message)
@@ -102,6 +134,7 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.getAllUser();
         this.loadAll();
         this.principal.identity().then(account => {
             this.currentAccount = account;
@@ -136,7 +169,17 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     }
 
     search() {
-        console.log('search');
+        this.loadAll();
+    }
+
+    getAllUser() {
+        this.userService
+            .query({
+                page: this.page - 1,
+                size: 1000,
+                sort: this.sort()
+            })
+            .subscribe((res: HttpResponse<User[]>) => (this.allUsers = res.body), (res: HttpResponse<any>) => this.onError(res.body));
     }
 
     private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {
@@ -144,7 +187,6 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
         this.totalItems = parseInt(headers.get('X-Total-Count'), 10);
         this.queryCount = this.totalItems;
         this.cards = data;
-        console.log(this.cards);
     }
 
     private onError(errorMessage: string) {

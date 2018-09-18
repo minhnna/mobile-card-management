@@ -11,13 +11,13 @@
         <div class="col-md-2">
             <select class="form-control" [(ngModel)]="selectionStatus">
                 <option value="">Chọn trạng thái</option>
-                <option *ngFor="let amount of amountOf;" value="{{amount}}">{{amount}}</option>
+                <option *ngFor="let status of statuses;" value="{{status}}">{{status}}</option>
             </select>
         </div>
         <div class="col-md-2">
             <select class="form-control" [(ngModel)]="selectionValue">
                 <option value="">Mệnh giá</option>
-                <option  *ngFor="let value of values;" value="{{value}}">{{value}}</option>
+                <option  *ngFor="let value of values;" value="{{value}}">{{value|moneyFormat}}</option>
             </select>
         </div>
         <div class="col-md-2 input-group">
