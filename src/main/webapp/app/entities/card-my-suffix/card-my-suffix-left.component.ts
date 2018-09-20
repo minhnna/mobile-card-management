@@ -58,16 +58,18 @@ export class CardMySuffixLeftComponent implements OnInit, OnDestroy {
     }
 
     loadAll() {
-        this.cardService
-            .getExpiredCard({
-                page: this.page - 1,
-                size: this.itemsPerPage,
-                sort: this.sort()
-            })
-            .subscribe(
-                (res: HttpResponse<ICardMySuffix[]>) => this.paginateCards(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res.message)
-            );
+        if (this.principal.isRoleHomeUser()) {
+            this.cardService
+                .getExpiredCard({
+                    page: this.page - 1,
+                    size: this.itemsPerPage,
+                    sort: this.sort()
+                })
+                .subscribe(
+                    (res: HttpResponse<ICardMySuffix[]>) => this.paginateCards(res.body, res.headers),
+                    (res: HttpErrorResponse) => this.onError(res.message)
+                );
+        }
     }
 
     loadPage(page: number) {

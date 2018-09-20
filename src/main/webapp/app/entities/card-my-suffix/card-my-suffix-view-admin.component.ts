@@ -43,7 +43,7 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     selectionMobileService = '';
     selectionStatus = '';
     selectionValue = '';
-    selectionUserId = '';
+    selectionUserName = '';
 
     constructor(
         private cardService: CardMySuffixService,
@@ -91,8 +91,8 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
             params['toDate'] = Moment(this.to).format(DATE_FORMAT);
         }
 
-        if (this.selectionUserId) {
-            params['userId'] = this.selectionUserId;
+        if (this.selectionUserName) {
+            params['userId'] = this.selectionUserName;
         }
 
         this.cardService
@@ -165,7 +165,24 @@ export class CardMySuffixViewAdminComponent implements OnInit, OnDestroy {
     }
 
     export() {
-        console.log('export');
+        const fromDateString = Moment(this.from).format(DATE_FORMAT);
+        const toDateString = Moment(this.to).format(DATE_FORMAT);
+        const req = {
+            fromDate: fromDateString,
+            toDate: toDateString
+        };
+
+        this.cardService.exportByAdmin(req).subscribe(data => {
+            const downloadURL = window.URL.createObjectURL(new Blob([data.body], { type: 'application/vnd.ms-excel' }));
+            const link = document.createElement('a');
+            link.href = downloadURL;
+            if (this.selectionUserName) {
+                link.download = req.fromDate + '_' + req.toDate + '.xlsx';
+            } else {
+                link.download = this.selectionUserName + '_' + req.fromDate + '_' + req.toDate + '.xlsx';
+            }
+            link.click();
+        });
     }
 
     search() {

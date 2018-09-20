@@ -35,6 +35,10 @@ public class UserDTO {
     @Size(min = 5, max = 254)
     private String email;
 
+    private int money;
+
+    private String phone;
+
     @Size(max = 256)
     private String imageUrl;
 
@@ -63,6 +67,8 @@ public class UserDTO {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
+        this.money = user.getMoney();
+        this.phone = user.getPhone();
         this.activated = user.getActivated();
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
@@ -113,6 +119,22 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getImageUrl() {

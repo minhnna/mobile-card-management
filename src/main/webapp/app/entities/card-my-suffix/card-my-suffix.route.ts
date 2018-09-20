@@ -38,7 +38,7 @@ export const cardRoute: Routes = [
             pagingParams: JhiResolvePagingParams
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_USER', 'ROLE_BIG_USER', 'ROLE_HOME_USER'],
             defaultSort: 'id,asc',
             pageTitle: 'Cards'
         },
@@ -51,7 +51,7 @@ export const cardRoute: Routes = [
             card: CardMySuffixResolve
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_USER', 'ROLE_BIG_USER', 'ROLE_HOME_USER'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService]
@@ -63,7 +63,7 @@ export const cardRoute: Routes = [
             card: CardMySuffixResolve
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_USER', 'ROLE_BIG_USER'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService]
@@ -75,7 +75,7 @@ export const cardRoute: Routes = [
             card: CardMySuffixResolve
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_USER', 'ROLE_BIG_USER', 'ROLE_HOME_USER'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService]
@@ -87,7 +87,7 @@ export const cardRoute: Routes = [
             pagingParams: JhiResolvePagingParams
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_USER', 'ROLE_BIG_USER', 'ROLE_HOME_USER'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService]
@@ -99,7 +99,7 @@ export const cardRoute: Routes = [
             pagingParams: JhiResolvePagingParams
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_HOME_USER', 'ROLE_ADMIN'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService]
@@ -111,7 +111,7 @@ export const cardRoute: Routes = [
             pagingParams: JhiResolvePagingParams
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_HOME_USER', 'ROLE_ADMIN'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService]
@@ -126,7 +126,7 @@ export const cardPopupRoute: Routes = [
             card: CardMySuffixResolve
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_ADMIN'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService],
@@ -139,7 +139,7 @@ export const cardPopupRoute: Routes = [
             card: CardMySuffixResolve
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: ['ROLE_USER', 'ROLE_BIG_USER', 'ROLE_HOME_USER'],
             pageTitle: 'Cards'
         },
         canActivate: [UserRouteAccessService],

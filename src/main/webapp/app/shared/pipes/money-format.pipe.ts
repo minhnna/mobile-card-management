@@ -18,6 +18,10 @@ export class MoneyFormatPipe implements PipeTransform {
                 return '100,000 đ';
             case 200000:
                 return '200,000 đ';
+            case 300000:
+                return '300,000 đ';
+            case 400000:
+                return '400,000 đ';
             case 500000:
                 return '500,000 đ';
             case 1000000:

@@ -52,7 +52,7 @@ public interface CardService {
 
     Page<CardDTO> findOldCards(Pageable pageable, CardQueryCondition cardQueryCondition);
 
-    Page<CardDTO> findExpiredCards(Pageable pageable);
+    Page<CardDTO> findExpiredCards(Pageable pageable, String username);
 
     CardDTO updateStatus(CardDTO cardDTO);
 

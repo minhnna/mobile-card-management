@@ -127,4 +127,8 @@ export class Principal {
     getImageUrl(): string {
         return this.isIdentityResolved() ? this.userIdentity.imageUrl : null;
     }
+
+    getUserMoney() {
+        return this.isIdentityResolved() ? this.userIdentity.money : 0;
+    }
 }

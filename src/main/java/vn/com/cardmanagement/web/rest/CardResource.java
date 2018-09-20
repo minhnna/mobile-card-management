@@ -117,7 +117,6 @@ public class CardResource {
         log.debug("REST request to get quantity of Cards");
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cardQueryCondition.setUserId(userDetails.getUsername());
-        List<CardDTO> cards = new ArrayList<>();
         List<CardDTO> result = cardService.findNewCards(cardQueryCondition);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -126,7 +125,8 @@ public class CardResource {
     @Timed
     public ResponseEntity<List<CardDTO>> getExpiredCard(Pageable pageable) {
         log.debug("REST request to get expired Cards");
-        Page<CardDTO> page = cardService.findExpiredCards(pageable);
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Page<CardDTO> page = cardService.findExpiredCards(pageable,userDetails.getUsername());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/get-expired-card");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -154,6 +154,31 @@ public class CardResource {
         cardQueryCondition.convertDateToMilliseconds();
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cardQueryCondition.setUserId(userDetails.getUsername());
+        File archivo = cardService.exportReportForUser(cardQueryCondition);
+        InputStream file = null;
+        try {
+            file = new FileInputStream(archivo);
+        } catch (FileNotFoundException e) {
+            log.info("ERROR export file");
+            e.printStackTrace();
+        }
+//        byte[] documentContent = archivo.toByteArray();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+//        headers.setContentType(MediaType.parseMediaType("application/vnd.ms-excel"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"myexcelfile.xlsx\"");
+//        headers.setContentLength(documentContent.length);
+        return new ResponseEntity<InputStreamResource>(new InputStreamResource(file), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/generate-excel-by-admin")
+    @Timed
+    public ResponseEntity<InputStreamResource> generateExcelByAdmin(CardQueryCondition cardQueryCondition) throws ParseException {
+        log.debug("REST request to generate Excel by user");
+        String fromDate = cardQueryCondition.getFromDate();
+        String toDate = cardQueryCondition.getToDate();
+        String excelFileName = fromDate.concat(toDate).concat(".xlsx");
+        cardQueryCondition.convertDateToMilliseconds();
         File archivo = cardService.exportReportForUser(cardQueryCondition);
         InputStream file = null;
         try {

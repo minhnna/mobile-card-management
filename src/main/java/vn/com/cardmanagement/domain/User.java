@@ -54,6 +54,12 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Indexed
     private String email;
 
+    @Field("money")
+    private int money = 0;
+
+    @Field("phone")
+    private String phone;
+
     private boolean activated = false;
 
     @Size(min = 2, max = 6)
@@ -127,6 +133,22 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getImageUrl() {

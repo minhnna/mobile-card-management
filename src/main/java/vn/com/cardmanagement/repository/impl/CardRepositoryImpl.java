@@ -14,7 +14,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import vn.com.cardmanagement.config.Constants;
+import vn.com.cardmanagement.domain.Authority;
 import vn.com.cardmanagement.domain.Card;
+import vn.com.cardmanagement.domain.User;
 import vn.com.cardmanagement.repository.CardRepositoryCustom;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
@@ -25,7 +27,8 @@ import java.util.Optional;
 
 @Repository
 public class CardRepositoryImpl implements CardRepositoryCustom {
-    private static final long EXPIRED_TIME = 240000;
+    private static final long EXPIRED_TIME = 180000;
+    private static final long EXPORTED_EXPIRED_TIME = 120000;
     MongoTemplate mongoTemplate;
     private final Logger log = LoggerFactory.getLogger(CardRepositoryImpl.class);
 
@@ -70,15 +73,41 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
             }
             query.addCriteria(Criteria.where("user_id").is(null));
             query.addCriteria(Criteria.where("status").is("NEW"));
-            List<Card> cards = mongoTemplate.find(query.limit(cardQueryCondition.getQuantity()), Card.class);
-            for (Card card : cards) {
-                card.setExportedDate(Instant.now());
-                card.setUserId(cardQueryCondition.getUserId());
-                card.setStatus(Constants.Status.PENDING.toString());
-                mongoTemplate.save(card);
+            List<Card> cards = new ArrayList<>();
+            if (cardQueryCondition.getQuantity() != 0) {
+                cards = mongoTemplate.find(query.limit(cardQueryCondition.getQuantity()), Card.class);
             }
-            return cards;
+            int totalMoney = 0;
+            CustomFieldQuery userQuery = new CustomFieldQuery();
+            userQuery.addCriteria(Criteria.where("login").is(cardQueryCondition.getUserId()));
+            User user = mongoTemplate.findOne(userQuery, User.class);
+            int userMoney = user.getMoney();
+            for (Card card : cards) {
+                totalMoney += card.getPrice();
+            }
+            List<Authority> authorityList = new ArrayList<>(user.getAuthorities());
+            if (isBigUserOrAdmin(authorityList) || userMoney >= totalMoney) {
+                user.setMoney(userMoney - totalMoney);
+                mongoTemplate.save(user);
+                for (Card card : cards) {
+                    card.setExportedDate(Instant.now());
+                    card.setUserId(cardQueryCondition.getUserId());
+                    card.setStatus(Constants.Status.PENDING.toString());
+                    mongoTemplate.save(card);
+                }
+                return cards;
+            } else {
+                return new ArrayList<>();
+            }
         }
+    }
+
+    private boolean isBigUserOrAdmin(List<Authority> authorityList) {
+        for (Authority authority : authorityList) {
+            if (authority.getName().equalsIgnoreCase("ROLE_BIG_USER") || authority.getName().equalsIgnoreCase("ROLE_ADMIN"))
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -154,18 +183,29 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         if (!Strings.isNullOrEmpty(cardQueryCondition.getUserId())) {
             query.addCriteria(Criteria.where("user_id").is(cardQueryCondition.getUserId()));
         }
-//        query.addCriteria(Criteria.where("status").ne("NEW"));
+        query.addCriteria(Criteria.where("status").ne("NEW"));
         return mongoTemplate.find(query, Card.class);
     }
 
     @Override
-    public Page<Card> findExpiredCard(Pageable pageable) {
+    public Page<Card> findExpiredCard(Pageable pageable, String username) {
         CustomFieldQuery query = new CustomFieldQuery();
-        query.addCriteria(Criteria.where("status").is("NEW"));
-        query.addCriteria(Criteria.where("created_date").lte(
-            Instant.ofEpochMilli(System.currentTimeMillis() - EXPIRED_TIME)));
+        Criteria statusNew = Criteria.where("status").is("NEW");
+        Criteria expiredDate = Criteria.where("created_date").lte(
+            Instant.ofEpochMilli(System.currentTimeMillis() - EXPIRED_TIME));
+        Criteria statusPending = Criteria.where("status").is("PENDING");
+        Criteria userId = Criteria.where("user_id").is(username);
+        Criteria newCard = new Criteria().andOperator(statusNew, expiredDate);
+        Criteria pendingCard = new Criteria().andOperator(statusPending, userId);
+        query.addCriteria(new Criteria().orOperator(newCard, pendingCard));
         List<Card> cardList = mongoTemplate.find(query, Card.class);
         Long total = mongoTemplate.count(query, Card.class);
+        for (Card card : cardList) {
+            card.setExportedDate(Instant.now());
+            card.setUserId(username);
+            card.setStatus(Constants.Status.PENDING.toString());
+            mongoTemplate.save(card);
+        }
         return new PageImpl<>(cardList, pageable, total);
     }
 
@@ -183,6 +223,8 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         userIdQuery.with(new Sort(Sort.Direction.ASC, "exported_date"));
         userIdQuery.fields().include("user_id");
         userIdQuery.addCriteria(Criteria.where("status").is(String.valueOf(Constants.Status.PENDING)));
+        userIdQuery.addCriteria(Criteria.where("exported_date").lte(
+            Instant.ofEpochMilli(System.currentTimeMillis() - EXPORTED_EXPIRED_TIME)));
         org.bson.Document mappedQuery = mapper.getMappedObject(userIdQuery.getQueryObject(), Optional.empty());
         List<String> userIds = mongoTemplate.getCollection("card")
             .distinct("user_id", mappedQuery, String.class)

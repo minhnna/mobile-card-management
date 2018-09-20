@@ -21,9 +21,9 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select class="form-control" [(ngModel)]="selectionUserId">
+            <select class="form-control" [(ngModel)]="selectionUserName">
                 <option value="">Chọn người dùng</option>
-                <option  *ngFor="let user of allUsers;" [ngValue]="user.id">{{user.login}}</option>
+                <option  *ngFor="let user of allUsers;" [ngValue]="user.login">{{user.login}}</option>
             </select>
         </div>
         <div class="col-md-2 input-group">
@@ -67,7 +67,6 @@
                     <th jhiSortBy="updatedDate"><span>Ngày nạp</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                     <th jhiSortBy="realPrice"><span>Mệnh giá thực</span> <fa-icon [icon]="'sort'"></fa-icon></th>
                     <th jhiSortBy="status"><span>Trạng thái</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-                    <th>Cập nhật</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -81,17 +80,6 @@
                         <td>{{card.updatedDate | date:'medium'}}</td>
                         <td>{{card.realPrice}}</td>
                         <td>{{card.status}}</td>
-                        <td class="text-left">
-                            <div class="btn-group flex-btn-group-container">
-                                <button type="submit"
-                                        [routerLink]="['/', { outlets: { popup: 'card-my-suffix/'+ card.id + '/change'} }]"
-                                        replaceUrl="true"
-                                        queryParamsHandling="merge"
-                                        class="btn btn-primary btn-sm">
-                                    <span class="d-none d-md-inline">Cập nhật</span>
-                                </button>
-                            </div>
-                        </td>
                     </tr>
                 </tbody>
             </ng-container>

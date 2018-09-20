@@ -20,7 +20,7 @@
                     </span>
                 </a>
             </li>
-            <li *ngIf="isRoleHomeUser() || isRoleUser()" class="nav-item" routerLinkActive="active"
+            <li *ngIf="isRoleUser()" class="nav-item" routerLinkActive="active"
                 [routerLinkActiveOptions]="{exact: true}">
                 <a class="nav-link" routerLink="card-my-suffix" (click)="collapseNavbar()">
                     <span>
@@ -28,7 +28,7 @@
                     </span>
                 </a>
             </li>
-            <li *ngIf="isAuthenticated() || !isRoleAdmin()" class="nav-item" routerLinkActive="active"
+            <li *ngIf="isAuthenticated() && !isRoleAdmin()" class="nav-item" routerLinkActive="active"
                 [routerLinkActiveOptions]="{exact: true}">
                 <a class="nav-link" routerLink="card-by-user" (click)="collapseNavbar()">
                     <span>
@@ -44,6 +44,12 @@
                     </span>
                 </a>
             </li>
+            <li *ngIf="isRoleUser() || isRoleBigUser()" class="nav-item">
+                    <span class="money-text">
+                        <span>{{getUserMoney()}}</span><span>đ</span>
+                    </span>
+            </li>
+
             <li *jhiHasAnyAuthority="'ROLE_ADMIN'" ngbDropdown class="nav-item dropdown pointer"
                 routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="admin-menu">

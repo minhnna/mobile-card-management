@@ -66,6 +66,10 @@ export class NavbarComponent implements OnInit {
         this.modalRef = this.loginModalService.open();
     }
 
+    getUserMoney() {
+        return this.principal.getUserMoney();
+    }
+
     logout() {
         this.collapseNavbar();
         this.loginService.logout();

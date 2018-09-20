@@ -2,6 +2,7 @@ package vn.com.cardmanagement.service.impl;
 
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import vn.com.cardmanagement.service.CardService;
@@ -125,37 +126,27 @@ public class CardServiceImpl implements CardService {
         sheet.setColumnWidth(0, 18000); //Set column width, you'll probably want to tweak the second int
 
         // create style for header cells
+        CellStyle headerStyle = workbook.createCellStyle();
         CellStyle style = workbook.createCellStyle();
+        headerStyle.setWrapText(true);
         style.setWrapText(true);
+        Font headerFont = workbook.createFont();
         Font font = workbook.createFont();
+        headerFont.setFontName("Arial");
         font.setFontName("Arial");
-        style.setFillForegroundColor(HSSFColor.BLUE.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        font.setBold(true);
-        font.setColor(HSSFColor.WHITE.index);
+        headerFont.setBold(true);
+        headerFont.setColor(HSSFColor.WHITE.index);
+//        font.setColor(HSSFColor.BLACK.index);
+        headerStyle.setFont(font);
         style.setFont(font);
-
-        // create header row
-        Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Stt");
-        header.getCell(0).setCellStyle(style);
-        header.createCell(1).setCellValue("Nhà mạng");
-        header.getCell(1).setCellStyle(style);
-        header.createCell(2).setCellValue("Số serial");
-        header.getCell(2).setCellStyle(style);
-        header.createCell(3).setCellValue("Mã thẻ cào");
-        header.getCell(3).setCellStyle(style);
-        header.createCell(4).setCellValue("Mẹnh giá trước khi cào");
-        header.getCell(4).setCellStyle(style);
-        header.createCell(5).setCellValue("Mẹnh giá sau khi cào");
-        header.getCell(5).setCellStyle(style);
-        header.createCell(6).setCellValue("Trạng thái");
-        header.getCell(6).setCellStyle(style);
-        header.createCell(7).setCellValue("Thời gian nạp");
-        header.getCell(7).setCellStyle(style);
         DataFormat format = workbook.createDataFormat();
-        CellStyle columnStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(HSSFColor.LIGHT_BLUE.index);
+//        style.setFillForegroundColor(HSSFColor.WHITE.index);
         style.setDataFormat(format.getFormat("@"));
+        style.setDataFormat(format.getFormat("@"));
+
         sheet.setDefaultColumnStyle(0, style);
         sheet.setDefaultColumnStyle(1, style);
         sheet.setDefaultColumnStyle(2, style);
@@ -164,7 +155,36 @@ public class CardServiceImpl implements CardService {
         sheet.setDefaultColumnStyle(5, style);
         sheet.setDefaultColumnStyle(6, style);
         sheet.setDefaultColumnStyle(7, style);
+
+// create header row
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Stt");
+        header.getCell(0).setCellStyle(headerStyle);
+        header.createCell(1).setCellValue("Nhà mạng");
+        header.getCell(1).setCellStyle(headerStyle);
+        header.createCell(2).setCellValue("Số serial");
+        header.getCell(2).setCellStyle(headerStyle);
+        header.createCell(3).setCellValue("Mã thẻ cào");
+        header.getCell(3).setCellStyle(headerStyle);
+        header.createCell(4).setCellValue("Mẹnh giá trước khi cào");
+        header.getCell(4).setCellStyle(headerStyle);
+        header.createCell(5).setCellValue("Mẹnh giá sau khi cào");
+        header.getCell(5).setCellStyle(headerStyle);
+        header.createCell(6).setCellValue("Trạng thái");
+        header.getCell(6).setCellStyle(headerStyle);
+        header.createCell(7).setCellValue("Thời gian nạp");
+        header.getCell(7).setCellStyle(headerStyle);
+
+        CellRangeAddress region = CellRangeAddress.valueOf("A1:H1");
+        for (int i = region.getFirstRow(); i < region.getLastRow(); i++) {
+            Row row = sheet.getRow(i);
+            for (int j = region.getFirstColumn(); j < region.getLastColumn(); j++) {
+                Cell cell = row.getCell(j);
+                cell.setCellStyle(headerStyle);
+            }
+        }
         int rowCount = 1;
+        int total=0;
         for (Card card : cardList) {
             Row userRow = sheet.createRow(rowCount++);
             userRow.createCell(0).setCellValue(rowCount - 1);
@@ -172,10 +192,30 @@ public class CardServiceImpl implements CardService {
             userRow.createCell(2).setCellValue(card.getSerialNumber());
             userRow.createCell(3).setCellValue(card.getCode());
             userRow.createCell(4).setCellValue(card.getPrice());
-            userRow.createCell(5).setCellValue(card.getRealPrice() == null ? card.getPrice() : card.getRealPrice());
+            if (card.getStatus().equalsIgnoreCase("ERROR")) {
+                userRow.createCell(5).setCellValue(0);
+            } else {
+                userRow.createCell(5).setCellValue(card.getRealPrice() == null ? card.getPrice() : card.getRealPrice());
+                if (card.getRealPrice() != null && card.getRealPrice() != 0) {
+                    total += card.getRealPrice();
+                } else {
+                    total += card.getPrice();
+                }
+            }
             userRow.createCell(6).setCellValue(card.getStatus());
             userRow.createCell(7).setCellValue(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(Date.from(card.getExportedDate())));
         }
+        Row userRow = sheet.createRow(rowCount++);
+        userRow.createCell(0).setCellValue("");
+        userRow.createCell(1).setCellValue("Tổng");
+        userRow.createCell(2).setCellValue("");
+        userRow.createCell(3).setCellValue("");
+        userRow.createCell(4).setCellValue("");
+        userRow.createCell(5).setCellValue(total);
+        userRow.createCell(6).setCellValue("");
+        userRow.createCell(7).setCellValue("");
+        userRow.createCell(8).setCellValue("");
+
         sheet.autoSizeColumn(0);
         sheet.autoSizeColumn(1);
         sheet.autoSizeColumn(2);
@@ -195,16 +235,16 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Page<CardDTO> findExpiredCards(Pageable pageable) {
-        return cardRepository.findExpiredCard(pageable).map(cardMapper::toDto);
+    public Page<CardDTO> findExpiredCards(Pageable pageable, String username) {
+        return cardRepository.findExpiredCard(pageable, username).map(cardMapper::toDto);
     }
 
     @Override
     public CardDTO updateStatus(CardDTO cardDTO) {
         log.debug("Request to update Card : {}", cardDTO.getId());
         Card orgCard = cardRepository.findOne(cardDTO.getId());
-        if (cardDTO.getRealPrice() != 0) {
-            orgCard.setRealPrice(cardDTO.getRealPrice());
+        if (cardDTO.getPrice() != 0 && !cardDTO.getStatus().equalsIgnoreCase("ERROR")) {
+            orgCard.setRealPrice(cardDTO.getPrice());
         }
         orgCard.setStatus(cardDTO.getStatus());
         orgCard.setUpdatedDate(Instant.now());

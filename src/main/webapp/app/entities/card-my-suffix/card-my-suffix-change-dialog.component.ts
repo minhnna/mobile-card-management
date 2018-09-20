@@ -25,6 +25,7 @@ export class CardMySuffixChangeDialogComponent implements OnInit {
 
     ngOnInit() {
         this.updateCard = JSON.parse(JSON.stringify(this.card));
+        console.log(this.updateCard);
     }
 
     clear() {
@@ -36,6 +37,18 @@ export class CardMySuffixChangeDialogComponent implements OnInit {
         this.updateCard.createdDate = moment(this.updateCard.createdDate, DATE_TIME_FORMAT);
         this.updateCard.exportedDate = moment(this.updateCard.exportedDate, DATE_TIME_FORMAT);
         this.updateCard.updatedDate = moment(this.updateCard.updatedDate, DATE_TIME_FORMAT);
+        this.updateCard.status = 'OK';
+        this.cardService
+            .update(this.updateCard)
+            .subscribe((res: HttpResponse<ICardMySuffix>) => this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError());
+    }
+
+    errorCard() {
+        this.isSaving = true;
+        this.updateCard.createdDate = moment(this.updateCard.createdDate, DATE_TIME_FORMAT);
+        this.updateCard.exportedDate = moment(this.updateCard.exportedDate, DATE_TIME_FORMAT);
+        this.updateCard.updatedDate = moment(this.updateCard.updatedDate, DATE_TIME_FORMAT);
+        this.updateCard.status = 'ERROR';
         this.cardService
             .update(this.updateCard)
             .subscribe((res: HttpResponse<ICardMySuffix>) => this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError());

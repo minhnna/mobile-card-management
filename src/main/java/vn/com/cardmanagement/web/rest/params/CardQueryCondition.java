@@ -90,16 +90,16 @@ public class CardQueryCondition {
     public void convertDateToMilliseconds(){
         if(!Strings.isNullOrEmpty(fromDate)) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
-                fromDate = String.valueOf(sdf.parse(fromDate).getTime());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                fromDate = String.valueOf((sdf.parse(fromDate)).getTime());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
         if(!Strings.isNullOrEmpty(toDate)) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
-                toDate = String.valueOf(sdf.parse(toDate).getTime());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                toDate = String.valueOf((sdf.parse(toDate)).getTime());
             } catch (ParseException e) {
                 e.printStackTrace();
             }

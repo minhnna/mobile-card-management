@@ -37,10 +37,16 @@ spring:
             uri: mongodb://localhost:27017
             database: MobileCardManagement
     mail:
-        host: localhost
-        port: 25
-        username: ancapnick2@gmail.com
-        password: canon400d
+        host: email-smtp.us-west-2.amazonaws.com
+        port: 587
+        username: AKIAJNZVVLWJQU3Z55WA
+        password: AvybtdnVMs8b4/hkM93UbYi1NuMrblYtec4u3t8qODjg
+        protocol: smtp
+        tls: true
+        properties.mail.smtp:
+            auth: true
+            starttls.enable: true
+            ssl.trust: email-smtp.us-west-2.amazonaws.com
     thymeleaf:
         cache: true
     zipkin: # Use the "zipkin" Maven profile to have the Spring Cloud Zipkin dependencies
@@ -104,8 +110,8 @@ jhipster:
                 token-validity-in-seconds: 86400
                 token-validity-in-seconds-for-remember-me: 2592000
     mail: # specific JHipster mail property, for standard properties see MailProperties
-        from: MobileCardManagement@localhost
-        base-url: http://my-server-url-to-change # Modify according to your server's URL
+        from: minhnna89@gmail.com
+        base-url: localhost:2509 # Modify according to your server's URL
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
         jmx:
             enabled: true
@@ -128,4 +134,4 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
