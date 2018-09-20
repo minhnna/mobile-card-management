@@ -268,5 +268,6 @@ public class CardServiceImpl implements CardService {
             userRepository.findOneByLogin(login).isPresent();
             userList.add(userRepository.findOneByLogin(login).orElse(new User()));
         }
+        return userList;
     }
 }
