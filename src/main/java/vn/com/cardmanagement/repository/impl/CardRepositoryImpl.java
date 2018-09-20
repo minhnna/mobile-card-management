@@ -217,7 +217,7 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
     }
 
     @Override
-    public Page<String> getAllManagedPendingUsers(Pageable pageable) {
+    public List<String> getAllManagedPendingUsers() {
         QueryMapper mapper = new QueryMapper(mongoTemplate.getConverter());
         CustomFieldQuery userIdQuery = new CustomFieldQuery();
         userIdQuery.with(new Sort(Sort.Direction.ASC, "exported_date"));
@@ -229,7 +229,7 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         List<String> userIds = mongoTemplate.getCollection("card")
             .distinct("user_id", mappedQuery, String.class)
             .into(new ArrayList<>());
-        Long total = Long.valueOf(userIds.size());
-        return new PageImpl<>(userIds, pageable, total);
+//        Long total = Long.valueOf(userIds.size());
+        return userIds;
     }
 }

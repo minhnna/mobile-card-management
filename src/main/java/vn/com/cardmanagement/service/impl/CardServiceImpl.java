@@ -5,6 +5,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
+import vn.com.cardmanagement.domain.User;
+import vn.com.cardmanagement.repository.UserRepository;
 import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.domain.Card;
 import vn.com.cardmanagement.repository.CardRepository;
@@ -22,6 +24,7 @@ import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +39,13 @@ public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
 
+    private final UserRepository userRepository;
+
     private final CardMapper cardMapper;
 
-    public CardServiceImpl(CardRepository cardRepository, CardMapper cardMapper) {
+    public CardServiceImpl(CardRepository cardRepository, UserRepository userRepository, CardMapper cardMapper) {
         this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
         this.cardMapper = cardMapper;
     }
 
@@ -184,7 +190,7 @@ public class CardServiceImpl implements CardService {
             }
         }
         int rowCount = 1;
-        int total=0;
+        int total = 0;
         for (Card card : cardList) {
             Row userRow = sheet.createRow(rowCount++);
             userRow.createCell(0).setCellValue(rowCount - 1);
@@ -254,7 +260,13 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Page<String> getAllManagedPendingUsers(Pageable pageable) {
-        return cardRepository.getAllManagedPendingUsers(pageable);
+    public List<User> getAllManagedPendingUsers() {
+        List<String> logins = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
+        logins.addAll(cardRepository.getAllManagedPendingUsers());
+        for(String login: logins) {
+            userRepository.findOneByLogin(login).isPresent();
+            userList.add(userRepository.findOneByLogin(login).orElse(new User()));
+        }
     }
 }

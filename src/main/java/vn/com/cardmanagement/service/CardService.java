@@ -1,6 +1,7 @@
 package vn.com.cardmanagement.service;
 
 import vn.com.cardmanagement.domain.Card;
+import vn.com.cardmanagement.domain.User;
 import vn.com.cardmanagement.service.dto.CardDTO;
 
 import org.springframework.data.domain.Page;
@@ -60,5 +61,5 @@ public interface CardService {
 
     File exportReportForUser(CardQueryCondition cardQueryCondition);
 
-    Page<String> getAllManagedPendingUsers(Pageable pageable);
+    List<User> getAllManagedPendingUsers();
 }

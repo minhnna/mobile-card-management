@@ -24,5 +24,5 @@ public interface CardRepositoryCustom {
 
     List<Card> findOldCard(CardQueryCondition cardQueryCondition);
 
-    Page<String> getAllManagedPendingUsers(Pageable pageable);
+    List<String> getAllManagedPendingUsers();
 }
