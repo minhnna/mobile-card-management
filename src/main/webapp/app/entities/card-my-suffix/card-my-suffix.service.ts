@@ -73,6 +73,10 @@ export class CardMySuffixService {
             .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
     }
 
+    getPendingUser(): Observable<any> {
+        return this.http.get(SERVER_API_URL + 'api/pending-users', { observe: 'response' });
+    }
+
     delete(id: string): Observable<HttpResponse<any>> {
         return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }

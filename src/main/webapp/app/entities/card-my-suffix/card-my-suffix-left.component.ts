@@ -10,6 +10,7 @@ import { Principal } from 'app/core';
 import { ITEMS_PER_PAGE } from 'app/shared';
 import { CardMySuffixService } from './card-my-suffix.service';
 import { DATA } from 'app/shared/constants/data.constants';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'jhi-card-my-suffix-left',
@@ -39,6 +40,9 @@ export class CardMySuffixLeftComponent implements OnInit, OnDestroy {
     amountOf = DATA.amountOf;
     values = DATA.values;
 
+    setIntervalCheck: any;
+    setIntervalPendingUsers: any;
+
     constructor(
         private cardService: CardMySuffixService,
         private parseLinks: JhiParseLinks,
@@ -46,7 +50,8 @@ export class CardMySuffixLeftComponent implements OnInit, OnDestroy {
         private principal: Principal,
         private activatedRoute: ActivatedRoute,
         private router: Router,
-        private eventManager: JhiEventManager
+        private eventManager: JhiEventManager,
+        private toastrService: ToastrService
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.routeData = this.activatedRoute.data.subscribe(data => {
@@ -104,13 +109,15 @@ export class CardMySuffixLeftComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.loadAll();
+        this.getPendingUsers();
         this.principal.identity().then(account => {
             this.currentAccount = account;
         });
         // this.registerChangeInCards();
 
-        setInterval(() => {
+        this.setIntervalCheck = setInterval(() => {
             this.loadAll();
+            this.getPendingUsers();
         }, 60000);
     }
 
@@ -118,6 +125,35 @@ export class CardMySuffixLeftComponent implements OnInit, OnDestroy {
         if (this.eventSubscriber) {
             this.eventManager.destroy(this.eventSubscriber);
         }
+        clearInterval(this.setIntervalCheck);
+    }
+
+    getPendingUsers() {
+        this.cardService.getPendingUser().subscribe(
+            res => {
+                if (res.body && res.body.length) {
+                    let noti = '';
+                    res.body.forEach((data, index) => {
+                        noti = noti + data.login + ' - ' + data.email + (index > 0 ? ',' : '');
+                    });
+                    this.toastrService.info(noti);
+                    this.playSoundNoti();
+                }
+            },
+            err => {
+                this.onError(err.message);
+            }
+        );
+    }
+
+    playSoundNoti() {
+        const audio = new Audio();
+        audio.src = '../../../../../content/audios/Cool-alarm-tone-notification-sound.mp3';
+        audio.load();
+        audio.play();
+        setTimeout(() => {
+            audio.pause();
+        }, 4000);
     }
 
     trackId(index: number, item: ICardMySuffix) {
@@ -145,7 +181,6 @@ export class CardMySuffixLeftComponent implements OnInit, OnDestroy {
         this.totalItems = parseInt(headers.get('X-Total-Count'), 10);
         this.queryCount = this.totalItems;
         this.cards = data;
-        console.log(this.cards);
     }
 
     private onError(errorMessage: string) {
