@@ -38,8 +38,30 @@ eureka:
             git-commit: ${git.commit.id.abbrev:}
             git-branch: ${git.branch:}
 ribbon:
+    eager-load:
+        enabled: true
     eureka:
         enabled: true
+    ConnectTimeout: 60000
+    ReadTimeout: 60000
+# See http://cloud.spring.io/spring-cloud-netflix/spring-cloud-netflix.html
+zuul: # those values must be configured depending on the application specific needs
+    host:
+        max-total-connections: 1000
+        max-per-route-connections: 100
+        connect-timeout-millis: 60000
+        socket-timeout-millis: 60000
+    semaphore:
+        max-semaphores: 500
+
+# See https://github.com/Netflix/Hystrix/wiki/Configuration
+hystrix:
+    command:
+        default:
+            execution:
+                isolation:
+                    thread:
+                        timeoutInMilliseconds: 600000
 management:
     endpoints:
         web:

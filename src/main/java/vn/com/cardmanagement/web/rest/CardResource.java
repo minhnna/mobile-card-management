@@ -6,6 +6,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.testng.TestNG;
 import vn.com.cardmanagement.config.Constants;
 import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.web.rest.errors.BadRequestAlertException;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -121,6 +123,16 @@ public class CardResource {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @GetMapping("/get-card-by-user-less-than")
+    @Timed
+    public ResponseEntity<List<CardDTO>> getCardsByUserLessThan(CardQueryCondition cardQueryCondition) {
+        log.debug("REST request to get quantity of Cards");
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        cardQueryCondition.setUserId(userDetails.getUsername());
+        List<CardDTO> result = cardService.findNewLessThanCards(cardQueryCondition);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @GetMapping("/get-expired-card")
     @Timed
     public ResponseEntity<List<CardDTO>> getExpiredCard(Pageable pageable) {
@@ -206,6 +218,14 @@ public class CardResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+
+    @GetMapping("/test-app")
+    @Timed
+    public ResponseEntity<List<CardDTO>> testApp() throws MalformedURLException, InterruptedException {
+        log.debug("REST test app");
+        cardService.testApp();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     /**
      * GET  /cards/:id : get the "id" card.

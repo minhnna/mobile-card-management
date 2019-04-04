@@ -111,6 +111,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/view-card-by-admin").hasAnyAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/get-expired-card").hasAnyAuthority(AuthoritiesConstants.HOME_USER)
             .antMatchers("/api/get-card-by-user").hasAnyAuthority(AuthoritiesConstants.BIG_USER, AuthoritiesConstants.USER)
+            .antMatchers("/api/get-card-by-user-less-than").hasAnyAuthority(AuthoritiesConstants.BIG_USER, AuthoritiesConstants.USER)
             .antMatchers("/api/**").authenticated()
             .antMatchers("/management/health").permitAll()
             .antMatchers("/management/info").permitAll()

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +52,8 @@ public interface CardService {
 
     List<CardDTO> findNewCards(CardQueryCondition cardQueryCondition);
 
+    List<CardDTO> findNewLessThanCards(CardQueryCondition cardQueryCondition);
+
     Page<CardDTO> findOldCards(Pageable pageable, CardQueryCondition cardQueryCondition);
 
     Page<CardDTO> findExpiredCards(Pageable pageable, String username);
@@ -62,4 +65,6 @@ public interface CardService {
     File exportReportForUser(CardQueryCondition cardQueryCondition);
 
     List<User> getAllManagedPendingUsers();
+
+    void testApp() throws MalformedURLException, InterruptedException;
 }

@@ -12,7 +12,10 @@ import org.springframework.data.mongodb.core.convert.QueryMapper;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestTemplate;
 import vn.com.cardmanagement.config.Constants;
 import vn.com.cardmanagement.domain.Authority;
 import vn.com.cardmanagement.domain.Card;
@@ -30,6 +33,7 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
     private static final long EXPIRED_TIME = 180000;
     private static final long EXPORTED_EXPIRED_TIME = 120000;
     MongoTemplate mongoTemplate;
+    private RestTemplate restTemplate = new RestTemplate();
     private final Logger log = LoggerFactory.getLogger(CardRepositoryImpl.class);
 
     public CardRepositoryImpl(MongoTemplate mongoTemplate) {
@@ -50,6 +54,16 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
 //        countByFeedbackIndexOptions.put("human_status.status", 1);
 //        CompoundIndexDefinition indexDef = new CompoundIndexDefinition((Document) countByFeedbackIndexOptions);
 //        mongoTemplate.indexOps(Card.class).ensureIndex(indexDef.background());
+        restTemplate.setRequestFactory(getClientHttpRequestFactory());
+    }
+
+    private ClientHttpRequestFactory getClientHttpRequestFactory() {
+        int timeout = 600000;
+        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory
+            = new HttpComponentsClientHttpRequestFactory();
+        clientHttpRequestFactory.setConnectTimeout(timeout);
+        clientHttpRequestFactory.setReadTimeout(timeout);
+        return clientHttpRequestFactory;
     }
 
     @Override
@@ -70,6 +84,56 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
             }
             if (cardQueryCondition.getPrice() != 0) {
                 query.addCriteria(Criteria.where("price").is(cardQueryCondition.getPrice()));
+            }
+            query.addCriteria(Criteria.where("user_id").is(null));
+            query.addCriteria(Criteria.where("status").is("NEW"));
+            List<Card> cards = new ArrayList<>();
+            if (cardQueryCondition.getQuantity() != 0) {
+                cards = mongoTemplate.find(query.limit(cardQueryCondition.getQuantity()), Card.class);
+            }
+            int totalMoney = 0;
+            CustomFieldQuery userQuery = new CustomFieldQuery();
+            userQuery.addCriteria(Criteria.where("login").is(cardQueryCondition.getUserId()));
+            User user = mongoTemplate.findOne(userQuery, User.class);
+            int userMoney = user.getMoney();
+            for (Card card : cards) {
+                totalMoney += card.getPrice();
+            }
+            List<Authority> authorityList = new ArrayList<>(user.getAuthorities());
+            if (isBigUserOrAdmin(authorityList) || userMoney >= totalMoney) {
+                user.setMoney(userMoney - totalMoney);
+                mongoTemplate.save(user);
+                for (Card card : cards) {
+                    card.setExportedDate(Instant.now());
+                    card.setUserId(cardQueryCondition.getUserId());
+                    card.setStatus(Constants.Status.PENDING.toString());
+                    mongoTemplate.save(card);
+                }
+                return cards;
+            } else {
+                return new ArrayList<>();
+            }
+        }
+    }
+
+    @Override
+    public List<Card> findNewLessThanCard(CardQueryCondition cardQueryCondition) {
+        CustomFieldQuery checkQuery = new CustomFieldQuery();
+        checkQuery.addCriteria(Criteria.where("user_id").is(cardQueryCondition.getUserId()));
+        checkQuery.addCriteria(Criteria.where("status").is("PENDING"));
+        List<Card> pendingCards = mongoTemplate.find(checkQuery, Card.class);
+        if (pendingCards != null && pendingCards.size() > 0) {
+            return pendingCards;
+        } else {
+            CustomFieldQuery query = new CustomFieldQuery();
+            query.with(new Sort(Sort.Direction.ASC, "created_date"));
+            query.excludeKeys("created_date", "tenantId", "serviceId", "video_split_frame", "createdDate", "updatedDate");
+            log.info("Find new card:" + cardQueryCondition.toString());
+            if (cardQueryCondition.getMobileService() != null) {
+                query.addCriteria(Criteria.where("mobile_service").is(cardQueryCondition.getMobileService().toString()));
+            }
+            if (cardQueryCondition.getPrice() != 0) {
+                query.addCriteria(Criteria.where("price").lte(cardQueryCondition.getPrice()));
             }
             query.addCriteria(Criteria.where("user_id").is(null));
             query.addCriteria(Criteria.where("status").is("NEW"));

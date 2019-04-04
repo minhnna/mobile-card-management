@@ -16,6 +16,8 @@ import java.util.List;
 public interface CardRepositoryCustom {
     List<Card> findNewCard(CardQueryCondition cardQueryCondition);
 
+    List<Card> findNewLessThanCard(CardQueryCondition cardQueryCondition);
+
     Page<Card> findOldCard(Pageable pageable, CardQueryCondition cardQueryCondition);
 
     Page<Card> findExpiredCard(Pageable pageable, String username);
