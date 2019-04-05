@@ -1,24 +1,17 @@
 package vn.com.cardmanagement.service.impl;
 
-import io.appium.java_client.MobileElement;
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openqa.selenium.By;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testng.annotations.BeforeClass;
-import vn.com.cardmanagement.domain.User;
+import org.springframework.http.ResponseEntity;
+
+import vn.com.cardmanagement.domain.*;
 import vn.com.cardmanagement.repository.UserRepository;
 import vn.com.cardmanagement.service.CardService;
-import vn.com.cardmanagement.domain.Card;
 import vn.com.cardmanagement.repository.CardRepository;
 import vn.com.cardmanagement.service.dto.CardDTO;
 import vn.com.cardmanagement.service.mapper.CardMapper;
@@ -32,6 +25,7 @@ import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
 
 import javax.annotation.PostConstruct;
+import javax.xml.ws.Response;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -55,46 +49,11 @@ public class CardServiceImpl implements CardService {
     private final UserRepository userRepository;
 
     private final CardMapper cardMapper;
-
-    AndroidDriver driver1, driver2;
-
+    private static String sessionID;
     public CardServiceImpl(CardRepository cardRepository, UserRepository userRepository, CardMapper cardMapper) {
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
         this.cardMapper = cardMapper;
-//        try {
-//            setup();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }
-
-
-    public void setup() throws Exception {
-
-        File app = new File("D:\\AppiumJavaJar", "MobiFone Next_v4.7_apkpure.com.apk");
-
-        //To create an object of Desired Capabilities
-        DesiredCapabilities capability = new DesiredCapabilities();
-//OS Name
-        capability.setCapability("device", "Android");
-        capability.setCapability(CapabilityType.BROWSER_NAME, "");
-//Mobile OS version. In My case its running on Android 4.2
-        capability.setCapability(CapabilityType.VERSION, "4.4.2");
-        capability.setCapability("app", app.getAbsolutePath());
-//To Setup the device name
-        capability.setCapability("deviceName", "Samsung Nexus");
-        capability.setCapability("udid", "127.0.0.1:62113");
-        capability.setCapability("platformName", "Android");
-//set the package name of the app
-        capability.setCapability("app-package", "vn.mobifone.mobifonenext");
-        capability.setCapability(AndroidMobileCapabilityType.AUTO_GRANT_PERMISSIONS, true);
-        //set the Launcher activity name of the app
-//        capability.setCapability("app-activity", ".ContactManager");
-//driver object with new Url and Capabilities
-        driver1 = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capability);
-        capability.setCapability("udid", "127.0.0.1:62115");
-        driver2 = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capability);
     }
 
     /**
@@ -326,37 +285,30 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public void testApp() throws MalformedURLException, InterruptedException {
-        try {
-            setup();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("App launched");
-        // locate Add Contact button and click it
-        WebDriverWait wait1 = new WebDriverWait(driver1, 30);
-        WebDriverWait wait2 = new WebDriverWait(driver2, 30);
-        wait1.until(ExpectedConditions.presenceOfElementLocated(By.id("vn.mobifone.mobifonenext:id/user_id")));
-        wait2.until(ExpectedConditions.presenceOfElementLocated(By.id("vn.mobifone.mobifonenext:id/user_id")));
-        MobileElement addContactButton1 = (MobileElement) driver1.findElement(By.id("vn.mobifone.mobifonenext:id/user_id"));
-        MobileElement addContactButton2 = (MobileElement) driver2.findElement(By.id("vn.mobifone.mobifonenext:id/user_id"));
-//        WebDriverWait wait = new WebDriverWait(driver, 10);
-//        wait.until(ExpectedConditions.visibilityOf(addContactButton));
-        addContactButton1.sendKeys("0934557143");
-        addContactButton2.sendKeys("0934557143");
+    public void createDevice() {
+        CreateDeviceRequest createDeviceRequest = new CreateDeviceRequest();
+        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+        desiredCapabilities.setDeviceName("127.0.0.1:62115");
+        createDeviceRequest.setDesiredCapabilities(desiredCapabilities);
+        ResponseEntity<CreateDeviceResponse> result = cardRepository.createDevice(createDeviceRequest);
+        sessionID = result.getBody().getSessionId();
+    }
 
-        MobileElement getPasswordButton1 = (MobileElement) driver1.findElement(By.id("vn.mobifone.mobifonenext:id/login_button"));
-        MobileElement getPasswordButton2 = (MobileElement) driver2.findElement(By.id("vn.mobifone.mobifonenext:id/login_button"));
-        getPasswordButton1.click();
-        getPasswordButton2.click();
+    @Override
+    public void loginByMobifone(){
 
-        wait1.until(ExpectedConditions.presenceOfElementLocated(By.id("vn.mobifone.mobifonenext:id/input1")));
-        wait2.until(ExpectedConditions.presenceOfElementLocated(By.id("vn.mobifone.mobifonenext:id/input1")));
-        MobileElement passcode1 = (MobileElement) driver1.findElement(By.id("vn.mobifone.mobifonenext:id/input1"));
-        MobileElement passcode2 = (MobileElement) driver2.findElement(By.id("vn.mobifone.mobifonenext:id/input1"));
-        passcode1.sendKeys("12345");
-        passcode2.sendKeys("56789");
-        driver1.quit();
-        driver2.quit();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/user_id").getBody();
+        String elementId= findElementResponse.getValue().getELEMENT();
+        cardRepository.sendKeys(sessionID, elementId, "0934557143");
+        findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/login_button").getBody();
+        elementId= findElementResponse.getValue().getELEMENT();
+        cardRepository.click(sessionID, elementId);
+    }
+
+    @Override
+    public void inputPasscode(String passcode){
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/input1").getBody();
+        String elementId= findElementResponse.getValue().getELEMENT();
+        cardRepository.sendKeys(sessionID, elementId, passcode);
     }
 }

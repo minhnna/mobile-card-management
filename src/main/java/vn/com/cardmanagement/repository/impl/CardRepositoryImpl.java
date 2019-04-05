@@ -12,14 +12,15 @@ import org.springframework.data.mongodb.core.convert.QueryMapper;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
 import vn.com.cardmanagement.config.Constants;
-import vn.com.cardmanagement.domain.Authority;
-import vn.com.cardmanagement.domain.Card;
-import vn.com.cardmanagement.domain.User;
+import vn.com.cardmanagement.domain.*;
 import vn.com.cardmanagement.repository.CardRepositoryCustom;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
@@ -32,6 +33,10 @@ import java.util.Optional;
 public class CardRepositoryImpl implements CardRepositoryCustom {
     private static final long EXPIRED_TIME = 180000;
     private static final long EXPORTED_EXPIRED_TIME = 120000;
+    private static final String URL_FIND_ELEMENT = "http://127.0.0.1:4723/wd/hub/session/SESSION_ID/element/";
+    private static final String URL_CLICK = "http://127.0.0.1:4723/wd/hub/session/SESSION_ID/element/ELEMENT_ID/click";
+    private static final String URL_SEND_KEYS = "http://127.0.0.1:4723/wd/hub/session/SESSION_ID/element/ELEMENT_ID/value";
+
     MongoTemplate mongoTemplate;
     private RestTemplate restTemplate = new RestTemplate();
     private final Logger log = LoggerFactory.getLogger(CardRepositoryImpl.class);
@@ -64,6 +69,51 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         clientHttpRequestFactory.setConnectTimeout(timeout);
         clientHttpRequestFactory.setReadTimeout(timeout);
         return clientHttpRequestFactory;
+    }
+
+    @Override
+    public ResponseEntity<CreateDeviceResponse> createDevice(CreateDeviceRequest createDeviceRequest) {
+        HttpEntity requestEntity = new HttpEntity(createDeviceRequest);
+        return restTemplate.exchange("http://127.0.0.1:4723/wd/hub/session", HttpMethod.POST, requestEntity, CreateDeviceResponse.class);
+    }
+
+    @Override
+    public ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp) {
+        if(Strings.isNullOrEmpty(sessionId)) {
+            log.info(sessionId);
+        } else {
+            log.info("sessionId NULL");
+        }
+        String url =URL_FIND_ELEMENT.replace("SESSION_ID", sessionId);
+        FindElementRequest findElementRequest = new FindElementRequest();
+        findElementRequest.setValue(elementIdInApp);
+        HttpEntity requestEntity = new HttpEntity(findElementRequest);
+        return restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class);
+    }
+
+    @Override
+    public void click(String sessionId, String elementId) {
+        String url =URL_CLICK.replace("SESSION_ID", sessionId)
+            .replace("ELEMENT_ID", elementId);
+        restTemplate.postForLocation(url, null);
+    }
+
+    @Override
+    public void sendKeys(String sessionId, String elementId, String keys) {
+        log.info(URL_SEND_KEYS);
+        if(Strings.isNullOrEmpty(sessionId)) {
+            log.info(sessionId);
+        } else {
+            log.info("sessionId NULL");
+        }
+        String url =URL_SEND_KEYS.replace("SESSION_ID", sessionId);
+        log.info(url);
+        url= url.replace("ELEMENT_ID", elementId);
+        log.info(url);
+        SendKeysRequest sendKeysRequest = new SendKeysRequest();
+        sendKeysRequest.setValue(keys);
+        HttpEntity requestEntity = new HttpEntity(sendKeysRequest);
+        restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
     }
 
     @Override

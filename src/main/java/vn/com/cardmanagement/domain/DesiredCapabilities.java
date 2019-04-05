@@ -3,40 +3,21 @@ package vn.com.cardmanagement.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DesiredCapabilities {
-    String app;
-    String platformVersion = "9.3";
-    String device = "Android";
-    String deviceName="Samsung Nexus";
+    String app = "D:\\AppiumJavaJar\\MobiFone Next_v4.7_apkpure.com.apk";
+    String deviceName;
     String platformName="Android";
     @JsonProperty("app-package")
-    String appPackage;
+    String appPackage = "vn.mobifone.mobifonenext";
     boolean autoGrantPermissions =true;
-    String version= "4.4.2";
     int newCommandTimeout = 86400;
     boolean fullReset = false;
-    String udid;
+
     public String getApp() {
         return app;
     }
 
     public void setApp(String app) {
         this.app = app;
-    }
-
-    public String getPlatformVersion() {
-        return platformVersion;
-    }
-
-    public void setPlatformVersion(String platformVersion) {
-        this.platformVersion = platformVersion;
-    }
-
-    public String getDevice() {
-        return device;
-    }
-
-    public void setDevice(String device) {
-        this.device = device;
     }
 
     public String getDeviceName() {
@@ -71,14 +52,6 @@ public class DesiredCapabilities {
         this.autoGrantPermissions = autoGrantPermissions;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public int getNewCommandTimeout() {
         return newCommandTimeout;
     }
@@ -93,13 +66,5 @@ public class DesiredCapabilities {
 
     public void setFullReset(boolean fullReset) {
         this.fullReset = fullReset;
-    }
-
-    public String getUdid() {
-        return udid;
-    }
-
-    public void setUdid(String udid) {
-        this.udid = udid;
     }
 }

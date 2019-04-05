@@ -6,7 +6,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.testng.TestNG;
 import vn.com.cardmanagement.config.Constants;
 import vn.com.cardmanagement.service.CardService;
 import vn.com.cardmanagement.web.rest.errors.BadRequestAlertException;
@@ -138,7 +137,7 @@ public class CardResource {
     public ResponseEntity<List<CardDTO>> getExpiredCard(Pageable pageable) {
         log.debug("REST request to get expired Cards");
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Page<CardDTO> page = cardService.findExpiredCards(pageable,userDetails.getUsername());
+        Page<CardDTO> page = cardService.findExpiredCards(pageable, userDetails.getUsername());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/get-expired-card");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -219,11 +218,27 @@ public class CardResource {
     }
 
 
+    @GetMapping("/create-device")
+    @Timed
+    public ResponseEntity<String> createDevice() {
+        log.debug("REST test app");
+        cardService.createDevice();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("/test-app")
     @Timed
-    public ResponseEntity<List<CardDTO>> testApp() throws MalformedURLException, InterruptedException {
+    public ResponseEntity<String> testApp() {
         log.debug("REST test app");
-        cardService.testApp();
+        cardService.loginByMobifone();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/passcode")
+    @Timed
+    public ResponseEntity<String> inputPasscode(@RequestParam(value = "passcode", required = true) String passcode) {
+        log.debug("REST inputPasscode");
+        cardService.inputPasscode(passcode);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

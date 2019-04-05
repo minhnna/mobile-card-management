@@ -66,5 +66,9 @@ public interface CardService {
 
     List<User> getAllManagedPendingUsers();
 
-    void testApp() throws MalformedURLException, InterruptedException;
+    void loginByMobifone();
+
+    void inputPasscode(String passcode);
+
+    void createDevice();
 }
