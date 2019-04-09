@@ -230,16 +230,22 @@ public class CardResource {
     @Timed
     public ResponseEntity<String> testApp() {
         log.debug("REST test app");
-        cardService.loginByMobifone();
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (cardService.loginByMobifone()) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        }
     }
 
     @PostMapping("/passcode")
     @Timed
     public ResponseEntity<String> inputPasscode(@RequestParam(value = "passcode", required = true) String passcode) {
         log.debug("REST inputPasscode");
-        cardService.inputPasscode(passcode);
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (cardService.inputPasscode(passcode)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        }
     }
 
     /**

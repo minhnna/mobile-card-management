@@ -22,7 +22,11 @@ public interface CardRepositoryCustom {
 
     ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp);
 
+    ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp, int maxRetryTimes);
+
     void click(String sessionId, String elementId);
+
+    String getContentElement(String sessionId, String elementId);
 
     void sendKeys(String sessionId, String elementId, String keys);
 

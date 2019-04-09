@@ -36,6 +36,8 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
     private static final String URL_FIND_ELEMENT = "http://127.0.0.1:4723/wd/hub/session/SESSION_ID/element/";
     private static final String URL_CLICK = "http://127.0.0.1:4723/wd/hub/session/SESSION_ID/element/ELEMENT_ID/click";
     private static final String URL_SEND_KEYS = "http://127.0.0.1:4723/wd/hub/session/SESSION_ID/element/ELEMENT_ID/value";
+    private static final String URL_GET_CONTENT = "http://127.0.0.1:4723/wd/hub/session/:session_id/elements/ELEMENT_ID/attribute/text" +
+        "\n";
 
     MongoTemplate mongoTemplate;
     private RestTemplate restTemplate = new RestTemplate();
@@ -79,36 +81,73 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
 
     @Override
     public ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp) {
-        if(Strings.isNullOrEmpty(sessionId)) {
+        if (!Strings.isNullOrEmpty(sessionId)) {
             log.info(sessionId);
         } else {
             log.info("sessionId NULL");
         }
-        String url =URL_FIND_ELEMENT.replace("SESSION_ID", sessionId);
+        String url = URL_FIND_ELEMENT.replace("SESSION_ID", sessionId);
         FindElementRequest findElementRequest = new FindElementRequest();
         findElementRequest.setValue(elementIdInApp);
         HttpEntity requestEntity = new HttpEntity(findElementRequest);
-        return restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class);
+        ResponseEntity<FindElementResponse> result = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class);
+        return result;
+    }
+
+    @Override
+    public ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp, int maxRetryTimes) {
+        ResponseEntity<FindElementResponse> result = null;
+        if (!Strings.isNullOrEmpty(sessionId)) {
+            log.info(sessionId);
+        } else {
+            log.info("sessionId NULL");
+        }
+        String url = URL_FIND_ELEMENT.replace("SESSION_ID", sessionId);
+        FindElementRequest findElementRequest = new FindElementRequest();
+        findElementRequest.setValue(elementIdInApp);
+        HttpEntity requestEntity = new HttpEntity(findElementRequest);
+        int retryTimes = 0;
+        while (maxRetryTimes > retryTimes++ && result == null) {
+            result = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class);
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+
+            }
+            log.info("findElement result==", result);
+        }
+        return result;
     }
 
     @Override
     public void click(String sessionId, String elementId) {
-        String url =URL_CLICK.replace("SESSION_ID", sessionId)
+        String url = URL_CLICK.replace("SESSION_ID", sessionId)
             .replace("ELEMENT_ID", elementId);
         restTemplate.postForLocation(url, null);
     }
 
     @Override
+    public String getContentElement(String sessionId, String elementId) {
+        ResponseEntity<GetContentResponse> result = null;
+        String url = URL_GET_CONTENT.replace("SESSION_ID", sessionId)
+            .replace("ELEMENT_ID", elementId);
+        while (result == null) {
+            result = restTemplate.getForEntity(url, GetContentResponse.class);
+        }
+        return result.getBody().getValue();
+    }
+
+    @Override
     public void sendKeys(String sessionId, String elementId, String keys) {
         log.info(URL_SEND_KEYS);
-        if(Strings.isNullOrEmpty(sessionId)) {
+        if (!Strings.isNullOrEmpty(sessionId)) {
             log.info(sessionId);
         } else {
             log.info("sessionId NULL");
         }
-        String url =URL_SEND_KEYS.replace("SESSION_ID", sessionId);
+        String url = URL_SEND_KEYS.replace("SESSION_ID", sessionId);
         log.info(url);
-        url= url.replace("ELEMENT_ID", elementId);
+        url = url.replace("ELEMENT_ID", elementId);
         log.info(url);
         SendKeysRequest sendKeysRequest = new SendKeysRequest();
         sendKeysRequest.setValue(keys);

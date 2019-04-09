@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import vn.com.cardmanagement.web.rest.params.CardQueryCondition;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,9 +65,9 @@ public interface CardService {
 
     List<User> getAllManagedPendingUsers();
 
-    void loginByMobifone();
+    boolean loginByMobifone();
 
-    void inputPasscode(String passcode);
+    boolean inputPasscode(String passcode);
 
     void createDevice();
 }
