@@ -286,8 +286,8 @@ public class CardServiceImpl implements CardService {
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
         desiredCapabilities.setDeviceName("127.0.0.1:62115");
         createDeviceRequest.setDesiredCapabilities(desiredCapabilities);
-        ResponseEntity<CreateDeviceResponse> result = cardRepository.createDevice(createDeviceRequest);
-        sessionID = result.getBody().getSessionId();
+        CreateDeviceResponse result = cardRepository.createDevice(createDeviceRequest);
+        sessionID = result.getSessionId();
     }
 
     @Override
@@ -295,15 +295,15 @@ public class CardServiceImpl implements CardService {
         String elementId ="";
         FindElementResponse findElementResponse = null;
         while (Strings.isNullOrEmpty(elementId)) {
-            findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/user_id", 5).getBody();
+            findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/user_id", 5);
             elementId = findElementResponse.getValue().getELEMENT();
         }
         cardRepository.sendKeys(sessionID, elementId, "0908495378");
-        findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/login_button", 5).getBody();
+        findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/login_button", 5);
         elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.click(sessionID, elementId);
         elementId = "";
-        findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/tv_error_desc", 5).getBody();
+        findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/tv_error_desc", 5);
         if(findElementResponse != null || !Strings.isNullOrEmpty(findElementResponse.getValue().getELEMENT())) {
             return false;
         } else {
@@ -319,9 +319,9 @@ public class CardServiceImpl implements CardService {
         } catch (Exception e) {
 
         }
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_top_up", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_top_up", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
-        if (Strings.isNullOrEmpty(elementId)) {
+        if (findElementResponse == null) {
             resendPasscode();
             return false;
         }
@@ -336,49 +336,47 @@ public class CardServiceImpl implements CardService {
     }
 
     private String getResultContent() {
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/txt_description", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/txt_description", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
         return cardRepository.getContentElement(sessionID,elementId);
     }
 
     private void clickScanNumber() {
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_scan_number", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_scan_number", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.click(sessionID, elementId);
     }
     private void clickTopUp(String elementId) {
-//        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_top_up", 5).getBody();
+//        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_top_up", 5);
 //        String elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.click(sessionID, elementId);
     }
     private void clickCharge() {
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_topup", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_topup", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.click(sessionID, elementId);
     }
     private void clickOK() {
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_cancel", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_cancel", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.click(sessionID, elementId);
     }
 
     private void resendPasscode() {
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_resend_sms", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/button_resend_sms", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.click(sessionID, elementId);
     }
 
     private void doInputPasscode(String passcode) {
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/input1", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/input1", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.sendKeys(sessionID, elementId, passcode);
 
     }
     private void inputSerial(String passcode) {
-        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/edit_pin_code", 5).getBody();
+        FindElementResponse findElementResponse = cardRepository.findElement(sessionID, "vn.mobifone.mobifonenext:id/edit_pin_code", 5);
         String elementId= findElementResponse.getValue().getELEMENT();
         cardRepository.sendKeys(sessionID, elementId, passcode);
     }
-
-
 }

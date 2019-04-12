@@ -74,13 +74,13 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
     }
 
     @Override
-    public ResponseEntity<CreateDeviceResponse> createDevice(CreateDeviceRequest createDeviceRequest) {
+    public CreateDeviceResponse createDevice(CreateDeviceRequest createDeviceRequest) {
         HttpEntity requestEntity = new HttpEntity(createDeviceRequest);
-        return restTemplate.exchange("http://127.0.0.1:4723/wd/hub/session", HttpMethod.POST, requestEntity, CreateDeviceResponse.class);
+        return restTemplate.exchange("http://127.0.0.1:4723/wd/hub/session", HttpMethod.POST, requestEntity, CreateDeviceResponse.class).getBody();
     }
 
     @Override
-    public ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp) {
+    public FindElementResponse findElement(String sessionId, String elementIdInApp) {
         if (!Strings.isNullOrEmpty(sessionId)) {
             log.info(sessionId);
         } else {
@@ -90,13 +90,18 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         FindElementRequest findElementRequest = new FindElementRequest();
         findElementRequest.setValue(elementIdInApp);
         HttpEntity requestEntity = new HttpEntity(findElementRequest);
-        ResponseEntity<FindElementResponse> result = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class);
+        FindElementResponse result = null;
+        try {
+            result = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class).getBody();
+        } catch (Exception e) {
+            return null;
+        }
         return result;
     }
 
     @Override
-    public ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp, int maxRetryTimes) {
-        ResponseEntity<FindElementResponse> result = null;
+    public FindElementResponse findElement(String sessionId, String elementIdInApp, int maxRetryTimes) {
+        FindElementResponse result = null;
         if (!Strings.isNullOrEmpty(sessionId)) {
             log.info(sessionId);
         } else {
@@ -108,8 +113,9 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
         HttpEntity requestEntity = new HttpEntity(findElementRequest);
         int retryTimes = 0;
         while (maxRetryTimes > retryTimes++ && result == null) {
-            result = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class);
+
             try {
+                result = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FindElementResponse.class).getBody();
                 Thread.sleep(1000);
             } catch (Exception e) {
 

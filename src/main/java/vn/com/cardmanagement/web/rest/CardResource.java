@@ -237,6 +237,17 @@ public class CardResource {
         }
     }
 
+    @GetMapping("/request")
+    @Timed
+    public ResponseEntity<String> request() {
+        log.debug("REST test app");
+        if (cardService.loginByMobifone()) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        }
+    }
+
     @PostMapping("/passcode")
     @Timed
     public ResponseEntity<String> inputPasscode(@RequestParam(value = "passcode", required = true) String passcode) {

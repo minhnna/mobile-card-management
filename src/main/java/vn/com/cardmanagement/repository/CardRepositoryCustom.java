@@ -18,11 +18,11 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Repository
 public interface CardRepositoryCustom {
-    ResponseEntity<CreateDeviceResponse> createDevice (CreateDeviceRequest createDeviceRequest);
+    CreateDeviceResponse createDevice (CreateDeviceRequest createDeviceRequest);
 
-    ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp);
+    FindElementResponse findElement(String sessionId, String elementIdInApp);
 
-    ResponseEntity<FindElementResponse> findElement(String sessionId, String elementIdInApp, int maxRetryTimes);
+    FindElementResponse findElement(String sessionId, String elementIdInApp, int maxRetryTimes);
 
     void click(String sessionId, String elementId);
 
