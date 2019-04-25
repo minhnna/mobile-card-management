@@ -64,10 +64,4 @@ public interface CardService {
     File exportReportForUser(CardQueryCondition cardQueryCondition);
 
     List<User> getAllManagedPendingUsers();
-
-    boolean loginByMobifone();
-
-    boolean inputPasscode(String passcode);
-
-    void createDevice();
 }

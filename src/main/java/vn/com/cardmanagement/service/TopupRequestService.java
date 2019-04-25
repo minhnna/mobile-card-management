@@ -1,5 +1,6 @@
 package vn.com.cardmanagement.service;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import vn.com.cardmanagement.service.dto.TopupRequestDTO;
 
 import org.springframework.data.domain.Page;
@@ -43,4 +44,13 @@ public interface TopupRequestService {
      * @param id the id of the entity
      */
     void delete(String id);
+
+    boolean loginByMobifone();
+
+    boolean inputPasscode(String passcode);
+
+    void createDevice();
+
+    @Scheduled(fixedDelay = 15000)
+    void runAutoTopup();
 }

@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface TopupRequestRepository extends MongoRepository<TopupRequest, String> {
-
+    TopupRequest findByStatusAAndOrderByCreatedDateAsc(String status);
 }
