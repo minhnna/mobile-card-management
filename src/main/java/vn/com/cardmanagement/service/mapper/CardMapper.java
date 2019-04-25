@@ -12,4 +12,13 @@ import org.mapstruct.*;
 public interface CardMapper extends EntityMapper<CardDTO, Card> {
 
 
+
+    default Card fromId(String id) {
+        if (id == null) {
+            return null;
+        }
+        Card card = new Card();
+        card.setId(id);
+        return card;
+    }
 }

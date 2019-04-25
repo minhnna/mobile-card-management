@@ -1,5 +1,4 @@
 package vn.com.cardmanagement.service.dto;
-
 import java.time.Instant;
 import java.io.Serializable;
 import java.util.Objects;
@@ -32,6 +31,7 @@ public class CardDTO implements Serializable {
     private Integer realPrice;
 
     private Boolean deleted;
+
 
     public String getId() {
         return id;

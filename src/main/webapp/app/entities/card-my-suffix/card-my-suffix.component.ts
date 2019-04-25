@@ -2,16 +2,14 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 
 import { ICardMySuffix } from 'app/shared/model/card-my-suffix.model';
-import { Principal } from 'app/core';
+import { AccountService } from 'app/core';
 
 import { ITEMS_PER_PAGE } from 'app/shared';
 import { CardMySuffixService } from './card-my-suffix.service';
-import { DATA } from 'app/shared/constants/data.constants';
-import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { CardMySuffixChangeDialogComponent } from './card-my-suffix-change-dialog.component';
 
 @Component({
     selector: 'jhi-card-my-suffix',
@@ -26,32 +24,20 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     routeData: any;
     links: any;
     totalItems: any;
-    queryCount: any;
     itemsPerPage: any;
     page: any;
     predicate: any;
     previousPage: any;
     reverse: any;
 
-    selectionMobileService = '';
-    selectionAmountOf = '';
-    selectionValue = '';
-
-    mobileServices = DATA.mobileServices;
-    amountOf = DATA.amountOf;
-    values = DATA.values;
-
-    modalRef: NgbModalRef;
-
     constructor(
-        private cardService: CardMySuffixService,
-        private parseLinks: JhiParseLinks,
-        private jhiAlertService: JhiAlertService,
-        private principal: Principal,
-        private activatedRoute: ActivatedRoute,
-        private router: Router,
-        private eventManager: JhiEventManager,
-        private modalService: NgbModal
+        protected cardService: CardMySuffixService,
+        protected parseLinks: JhiParseLinks,
+        protected jhiAlertService: JhiAlertService,
+        protected accountService: AccountService,
+        protected activatedRoute: ActivatedRoute,
+        protected router: Router,
+        protected eventManager: JhiEventManager
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.routeData = this.activatedRoute.data.subscribe(data => {
@@ -106,31 +92,15 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        // this.loadAll();
-        this.principal.identity().then(account => {
+        this.loadAll();
+        this.accountService.identity().then(account => {
             this.currentAccount = account;
         });
-        // this.registerChangeInCards();
-        this.eventSubscriber = this.eventManager.subscribe('updateSuccess', response => this.popOutChangedCard(response.data));
-    }
-
-    popOutChangedCard(data) {
-        let cardIndex;
-        this.cards.forEach((card, index) => {
-            if (card.id === data.id) {
-                cardIndex = index;
-            }
-        });
-
-        if (typeof cardIndex === 'number') {
-            this.cards.splice(cardIndex, 1);
-        }
+        this.registerChangeInCards();
     }
 
     ngOnDestroy() {
-        if (this.eventSubscriber) {
-            this.eventManager.destroy(this.eventSubscriber);
-        }
+        this.eventManager.destroy(this.eventSubscriber);
     }
 
     trackId(index: number, item: ICardMySuffix) {
@@ -149,54 +119,13 @@ export class CardMySuffixComponent implements OnInit, OnDestroy {
         return result;
     }
 
-    receiveCard() {
-        const params = {
-            mobileService: this.selectionMobileService.toUpperCase()
-        };
-        if (this.selectionValue) {
-            params['price'] = this.selectionValue;
-        }
-
-        if (this.selectionAmountOf) {
-            params['quantity'] = this.selectionAmountOf;
-        }
-        this.cardService
-            .getCardByUser(params)
-            .subscribe(
-                (res: HttpResponse<ICardMySuffix[]>) => this.pushIntoListCard(res.body),
-                (res: HttpErrorResponse) => this.onError(res.message)
-            );
-    }
-
-    pushIntoListCard(data) {
-        if (!this.cards) {
-            this.cards = [];
-        }
-
-        if (data && data.length) {
-            if (data.length === 1) {
-                this.cards.push(data[0]);
-            } else {
-                data.forEach(card => {
-                    this.cards.push(card);
-                });
-            }
-        }
-    }
-
-    openChange(card) {
-        this.modalRef = this.modalService.open(CardMySuffixChangeDialogComponent, { size: 'lg' });
-        this.modalRef.componentInstance.card = card;
-    }
-
-    private paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {
+    protected paginateCards(data: ICardMySuffix[], headers: HttpHeaders) {
         this.links = this.parseLinks.parse(headers.get('link'));
         this.totalItems = parseInt(headers.get('X-Total-Count'), 10);
-        this.queryCount = this.totalItems;
         this.cards = data;
     }
 
-    private onError(errorMessage: string) {
+    protected onError(errorMessage: string) {
         this.jhiAlertService.error(errorMessage, null, null);
     }
 }

@@ -14,9 +14,9 @@ type EntityArrayResponseType = HttpResponse<ICardMySuffix[]>;
 
 @Injectable({ providedIn: 'root' })
 export class CardMySuffixService {
-    private resourceUrl = SERVER_API_URL + 'api/cards';
+    public resourceUrl = SERVER_API_URL + 'api/cards';
 
-    constructor(private http: HttpClient) {}
+    constructor(protected http: HttpClient) {}
 
     create(card: ICardMySuffix): Observable<EntityResponseType> {
         const copy = this.convertDateFromClient(card);
@@ -45,61 +45,11 @@ export class CardMySuffixService {
             .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
     }
 
-    getCardByUser(req?: any): Observable<EntityArrayResponseType> {
-        const options = createRequestOption(req);
-        return this.http
-            .get<ICardMySuffix[]>(SERVER_API_URL + 'api/get-card-by-user', { params: options, observe: 'response' })
-            .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
-    }
-
-    queryByAdmin(req?: any): Observable<EntityArrayResponseType> {
-        const options = createRequestOption(req);
-        return this.http
-            .get<ICardMySuffix[]>(SERVER_API_URL + '/api/view-card-by-admin', { params: options, observe: 'response' })
-            .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
-    }
-
-    queryByUser(req?: any): Observable<EntityArrayResponseType> {
-        const options = createRequestOption(req);
-        return this.http
-            .get<ICardMySuffix[]>(SERVER_API_URL + 'api/view-card-by-user', { params: options, observe: 'response' })
-            .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
-    }
-
-    getExpiredCard(req?: any): Observable<EntityArrayResponseType> {
-        const options = createRequestOption(req);
-        return this.http
-            .get<ICardMySuffix[]>(SERVER_API_URL + 'api/get-expired-card', { params: options, observe: 'response' })
-            .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
-    }
-
-    getPendingUser(): Observable<any> {
-        return this.http.get(SERVER_API_URL + 'api/pending-users', { observe: 'response' });
-    }
-
     delete(id: string): Observable<HttpResponse<any>> {
         return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
     }
 
-    export(req?: any): any {
-        const options = createRequestOption(req);
-        return this.http.get<any>(SERVER_API_URL + 'api/generate-excel-by-user', {
-            params: options,
-            observe: 'response',
-            responseType: 'blob' as 'json'
-        });
-    }
-
-    exportByAdmin(req?: any): any {
-        const options = createRequestOption(req);
-        return this.http.get<any>(SERVER_API_URL + 'api/generate-excel-by-admin', {
-            params: options,
-            observe: 'response',
-            responseType: 'blob' as 'json'
-        });
-    }
-
-    private convertDateFromClient(card: ICardMySuffix): ICardMySuffix {
+    protected convertDateFromClient(card: ICardMySuffix): ICardMySuffix {
         const copy: ICardMySuffix = Object.assign({}, card, {
             createdDate: card.createdDate != null && card.createdDate.isValid() ? card.createdDate.toJSON() : null,
             exportedDate: card.exportedDate != null && card.exportedDate.isValid() ? card.exportedDate.toJSON() : null,
@@ -108,19 +58,23 @@ export class CardMySuffixService {
         return copy;
     }
 
-    private convertDateFromServer(res: EntityResponseType): EntityResponseType {
-        res.body.createdDate = res.body.createdDate != null ? moment(res.body.createdDate) : null;
-        res.body.exportedDate = res.body.exportedDate != null ? moment(res.body.exportedDate) : null;
-        res.body.updatedDate = res.body.updatedDate != null ? moment(res.body.updatedDate) : null;
+    protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
+        if (res.body) {
+            res.body.createdDate = res.body.createdDate != null ? moment(res.body.createdDate) : null;
+            res.body.exportedDate = res.body.exportedDate != null ? moment(res.body.exportedDate) : null;
+            res.body.updatedDate = res.body.updatedDate != null ? moment(res.body.updatedDate) : null;
+        }
         return res;
     }
 
-    private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-        res.body.forEach((card: ICardMySuffix) => {
-            card.createdDate = card.createdDate != null ? moment(card.createdDate) : null;
-            card.exportedDate = card.exportedDate != null ? moment(card.exportedDate) : null;
-            card.updatedDate = card.updatedDate != null ? moment(card.updatedDate) : null;
-        });
+    protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
+        if (res.body) {
+            res.body.forEach((card: ICardMySuffix) => {
+                card.createdDate = card.createdDate != null ? moment(card.createdDate) : null;
+                card.exportedDate = card.exportedDate != null ? moment(card.exportedDate) : null;
+                card.updatedDate = card.updatedDate != null ? moment(card.updatedDate) : null;
+            });
+        }
         return res;
     }
 }
