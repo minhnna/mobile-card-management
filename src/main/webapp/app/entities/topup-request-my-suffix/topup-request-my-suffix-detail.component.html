@@ -1,0 +1,59 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="topupRequest">
+            <h2><span>Topup Request</span> {{topupRequest.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span>Mobile Service</span></dt>
+                <dd>
+                    <span>{{topupRequest.mobileService}}</span>
+                </dd>
+                <dt><span>Mobile Number</span></dt>
+                <dd>
+                    <span>{{topupRequest.mobileNumber}}</span>
+                </dd>
+                <dt><span>Topup Value</span></dt>
+                <dd>
+                    <span>{{topupRequest.topupValue}}</span>
+                </dd>
+                <dt><span>Real Value</span></dt>
+                <dd>
+                    <span>{{topupRequest.realValue}}</span>
+                </dd>
+                <dt><span>Created Date</span></dt>
+                <dd>
+                    <span>{{topupRequest.createdDate}}</span>
+                </dd>
+                <dt><span>Updated Date</span></dt>
+                <dd>
+                    <span>{{topupRequest.updatedDate}}</span>
+                </dd>
+                <dt><span>User Id</span></dt>
+                <dd>
+                    <span>{{topupRequest.userId}}</span>
+                </dd>
+                <dt><span>Status</span></dt>
+                <dd>
+                    <span>{{topupRequest.status}}</span>
+                </dd>
+                <dt><span>Deleted</span></dt>
+                <dd>
+                    <span>{{topupRequest.deleted}}</span>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/topup-request-my-suffix', topupRequest.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

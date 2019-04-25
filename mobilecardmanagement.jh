@@ -12,6 +12,18 @@ entity Card {
     deleted Boolean,
 }
 
+entity TopupRequest {
+	mobileService String,
+    mobileNumber String,
+    topupValue Integer,
+    realValue Integer,
+	createdDate Instant,
+    updatedDate Instant,
+    userId String,
+    status String,
+    deleted Boolean,
+}
+
 enum SERVICE {
     VIETTEL, MOBI, VINA, VNMOBILE
 }
@@ -19,6 +31,7 @@ enum SERVICE {
 // Set pagination options
 // paginate Card with infinite-scroll
 paginate Card with pagination
+paginate TopupRequest with pagination
 
 dto * with mapstruct
 

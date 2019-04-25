@@ -1,0 +1,78 @@
+<div>
+    <h2 id="page-heading">
+        <span>Topup Requests</span>
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-topup-request-my-suffix" [routerLink]="['/topup-request-my-suffix/new']">
+            <fa-icon [icon]="'plus'"></fa-icon>
+            <span >
+            Create new Topup Request
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <br/>
+    <div class="table-responsive" *ngIf="topupRequests">
+        <table class="table table-striped">
+            <thead>
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <th jhiSortBy="id"><span>ID</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="mobileService"><span>Mobile Service</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="mobileNumber"><span>Mobile Number</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="topupValue"><span>Topup Value</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="realValue"><span>Real Value</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="createdDate"><span>Created Date</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="updatedDate"><span>Updated Date</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="userId"><span>User Id</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="status"><span>Status</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="deleted"><span>Deleted</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let topupRequest of topupRequests ;trackBy: trackId">
+                <td><a [routerLink]="['/topup-request-my-suffix', topupRequest.id, 'view' ]">{{topupRequest.id}}</a></td>
+                <td>{{topupRequest.mobileService}}</td>
+                <td>{{topupRequest.mobileNumber}}</td>
+                <td>{{topupRequest.topupValue}}</td>
+                <td>{{topupRequest.realValue}}</td>
+                <td>{{topupRequest.createdDate | date:'medium'}}</td>
+                <td>{{topupRequest.updatedDate | date:'medium'}}</td>
+                <td>{{topupRequest.userId}}</td>
+                <td>{{topupRequest.status}}</td>
+                <td>{{topupRequest.deleted}}</td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['/topup-request-my-suffix', topupRequest.id, 'view' ]"
+                                class="btn btn-info btn-sm">
+                            <fa-icon [icon]="'eye'"></fa-icon>
+                            <span class="d-none d-md-inline">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/topup-request-my-suffix', topupRequest.id, 'edit']"
+                                class="btn btn-primary btn-sm">
+                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
+                            <span class="d-none d-md-inline">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', 'topup-request-my-suffix', { outlets: { popup: topupRequest.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <fa-icon [icon]="'times'"></fa-icon>
+                            <span class="d-none d-md-inline">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div *ngIf="topupRequests && topupRequests.length">
+        <div class="row justify-content-center">
+            <jhi-item-count [page]="page" [total]="totalItems" [maxSize]="5" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+        </div>
+        <div class="row justify-content-center">
+            <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage(page)"></ngb-pagination>
+        </div>
+    </div>
+</div>
