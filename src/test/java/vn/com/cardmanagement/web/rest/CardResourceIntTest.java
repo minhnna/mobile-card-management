@@ -21,6 +21,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.Validator;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -80,7 +81,7 @@ public class CardResourceIntTest {
 
     @Autowired
     private CardMapper cardMapper;
-    
+
     @Autowired
     private CardService cardService;
 
@@ -92,6 +93,9 @@ public class CardResourceIntTest {
 
     @Autowired
     private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private Validator validator;
 
     private MockMvc restCardMockMvc;
 
@@ -105,7 +109,8 @@ public class CardResourceIntTest {
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter).build();
+            .setMessageConverters(jacksonMessageConverter)
+            .setValidator(validator).build();
     }
 
     /**
@@ -306,7 +311,7 @@ public class CardResourceIntTest {
 
         int databaseSizeBeforeDelete = cardRepository.findAll().size();
 
-        // Get the card
+        // Delete the card
         restCardMockMvc.perform(delete("/api/cards/{id}", card.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());

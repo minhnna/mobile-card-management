@@ -10,7 +10,7 @@ import { ICardMySuffix } from 'app/shared/model/card-my-suffix.model';
 export class CardMySuffixDetailComponent implements OnInit {
     card: ICardMySuffix;
 
-    constructor(private activatedRoute: ActivatedRoute) {}
+    constructor(protected activatedRoute: ActivatedRoute) {}
 
     ngOnInit() {
         this.activatedRoute.data.subscribe(({ card }) => {

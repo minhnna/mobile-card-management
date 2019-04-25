@@ -14,7 +14,7 @@ import { CardMySuffixService } from './card-my-suffix.service';
 export class CardMySuffixDeleteDialogComponent {
     card: ICardMySuffix;
 
-    constructor(private cardService: CardMySuffixService, public activeModal: NgbActiveModal, private eventManager: JhiEventManager) {}
+    constructor(protected cardService: CardMySuffixService, public activeModal: NgbActiveModal, protected eventManager: JhiEventManager) {}
 
     clear() {
         this.activeModal.dismiss('cancel');
@@ -36,9 +36,9 @@ export class CardMySuffixDeleteDialogComponent {
     template: ''
 })
 export class CardMySuffixDeletePopupComponent implements OnInit, OnDestroy {
-    private ngbModalRef: NgbModalRef;
+    protected ngbModalRef: NgbModalRef;
 
-    constructor(private activatedRoute: ActivatedRoute, private router: Router, private modalService: NgbModal) {}
+    constructor(protected activatedRoute: ActivatedRoute, protected router: Router, protected modalService: NgbModal) {}
 
     ngOnInit() {
         this.activatedRoute.data.subscribe(({ card }) => {
@@ -50,11 +50,11 @@ export class CardMySuffixDeletePopupComponent implements OnInit, OnDestroy {
                 this.ngbModalRef.componentInstance.card = card;
                 this.ngbModalRef.result.then(
                     result => {
-                        this.router.navigate([{ outlets: { popup: null } }], { replaceUrl: true, queryParamsHandling: 'merge' });
+                        this.router.navigate(['/card-my-suffix', { outlets: { popup: null } }]);
                         this.ngbModalRef = null;
                     },
                     reason => {
-                        this.router.navigate([{ outlets: { popup: null } }], { replaceUrl: true, queryParamsHandling: 'merge' });
+                        this.router.navigate(['/card-my-suffix', { outlets: { popup: null } }]);
                         this.ngbModalRef = null;
                     }
                 );
